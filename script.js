@@ -51,6 +51,9 @@ function initializeCamera() {
         var snapshots = [];
         var faceapi;
         var detections = [];
+        var currentBox = 1;
+        
+
 
         p.setup = function() {
             //   createCanvas (windowWidth, windowHeight);
@@ -137,11 +140,24 @@ function initializeCamera() {
                     }
                 }
             }
-            if (snapshots.length < 2) {
-                snapshots.push(snapshot);
-            } else {
-                snapshots.shift();
-                snapshots.push(snapshot);
+
+            snapshots.push(snapshot);
+            currentBox++;
+            if (currentBox > 3) {
+                //change snap button to arrow button to go to page 4
+         
+                
+                button.html('→');
+                button.style('font-size', '24px');
+                button.style('display', 'block');
+                
+                // Remove old click event and add new one
+                button.mousePressed(function() {
+                    const page4 = document.getElementById('page4');
+                    if (page4) {
+                        page4.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
             }
         }
 
@@ -160,45 +176,59 @@ function initializeCamera() {
             //centers vertically
             let y = (p.height - windowH) / 2;
 
-            // white borders for all 3 boxes
-            p.stroke(255); 
-            p.strokeWeight(7);
-            p.noFill();
-            
-            // Box 1: live video
-            p.rect(startX, y, windowW, windowH);
-            p.push();
-            p.tint(42, 113, 219) // camera tint, but you need to reset every time what the f*ck
-            p.image(video, startX, y, windowW, windowH);
-            p.noTint(); //start then stop tint
+            let labels = ["FACE FRONT", "TURN LEFT", "TURN RIGHT"];
 
-            //detection overlay in first box
-            drawFaceDetection(startX, y, windowW, windowH);
-            p.pop();
-            
-            // Adds the word in box (FRONT)
-            p.fill(255, 255, 255);
-            p.noStroke();
-            p.textSize(17);
-            p.text("FACE FRONT", startX + 5, y + 20);
-            
-            // Adds the words for boxes 2 and 3
-            let labels = ["TURN LEFT", "TURN RIGHT"];
-            for (var i = 0; i < 2; i++){
-                let boxX = startX + (i + 1) * (windowW + spacing);
-                p.stroke(255);
+            for (var i = 0; i < 3; i++) {
+                let boxX = startX + i * (windowW + spacing);
+
+                // white borders for all 3 boxes
+                p.stroke(255); 
                 p.strokeWeight(7);
                 p.noFill();
+                
+                // Box 1: live video
                 p.rect(boxX, y, windowW, windowH);
-                if (i < snapshots.length) {
+
+                if (i + 1 === currentBox) {
+                    
+                    p.push();
+                    p.tint(42, 113, 219); // camera tint, but you need to reset every time what the f*ck
+                    p.image(video, boxX, y, windowW, windowH);
+                    p.noTint(); //start then stop tint
+
+                    //detection overlay in first box
+                    drawFaceDetection(boxX, y, windowW, windowH);
+                    p.pop();
+                    
+                } else if (i < snapshots.length) {
                     p.image(snapshots[i], boxX, y, windowW, windowH);
                 }
                 
-                // Add text for boxes 2 and 3
+                // Adds the word in box (FRONT)
                 p.fill(255, 255, 255);
                 p.noStroke();
                 p.textSize(17);
                 p.text(labels[i], boxX + 5, y + 20);
+                
+                // // Adds the words for boxes 2 and 3
+                // let labels = ["TURN LEFT", "TURN RIGHT"];
+                // for (var i = 0; i < 2; i++){
+                //     let boxX = startX + (i + 1) * (windowW + spacing);
+                //     p.stroke(255);
+                //     p.strokeWeight(7);
+                //     p.noFill();
+                //     p.rect(boxX, y, windowW, windowH);
+                //     if (i < snapshots.length) {
+                //         p.image(snapshots[i], boxX, y, windowW, windowH);
+                //     }
+                
+                //     // Add text for boxes 2 and 3
+                //     p.fill(255, 255, 255);
+                //     p.noStroke();
+                //     p.textSize(17);
+                //     p.text(labels[i], boxX + 5, y + 20);
+                // }
+        
             }
         };
 
@@ -209,8 +239,8 @@ function initializeCamera() {
 
                 for(let f = 0 ; f < detections.length; f++) {
                     let  {_x, _y, _width, _height} = detections[f].alignedRect._box;
-                    p.stroke(255,0,0);
-                    p.strokeWeight(2);
+                    p.stroke(255, 191, 0);
+                    p.strokeWeight(3);
                     p.noFill();
                     p.rect(
                         offsetX + _x * scaleX,
@@ -220,8 +250,8 @@ function initializeCamera() {
                     );
                     //landmarks 
                     let points = detections[f].landmarks.positions;
-                    p.stroke(255,0,0)
-                    p.strokeWeight(2)
+                    p.stroke(255, 191, 0);
+                    p.strokeWeight(1);
                     for (let i = 0; i < points.length; i++) {
                         p.point(
                             offsetX + points[i]._x * scaleX,

@@ -65,6 +65,7 @@ input:focus {
     position: fixed;
     font-size: 60px;
     font-weight: bold;
+    transition: opacity 1.5s ease-in-out;
 }
 
 .red {
@@ -156,8 +157,8 @@ input:focus {
 /* Page 2: pluses fade out */
 .plus.fade-out {
     opacity: 0;
-    transition: opacity 1.5s ease-in-out;
 }
+
  /* the button on Page 2 to progress */
 #nextBtn {
     background-color: transparent;
@@ -196,7 +197,7 @@ input:focus {
     left: 0;
 }
 
-/* Hide the default p5 button completely - we'll make our own */
+/* Hide the default p5 button */
 #p5-container button {
     position: fixed !important;
     bottom: 40px !important;

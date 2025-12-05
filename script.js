@@ -1,4 +1,3 @@
-
 //scroll lock function
 let currentPage = 1;
 
@@ -264,6 +263,18 @@ function initializeMorphVideo() {
     new p5(function(p) {
         var video;
 
+        // array for questions for viewers to have a mental breakdown
+        var questions = [
+            "Do you believe that digital media has an impact on the way you rationalize and perceive the real world around you?",
+            "Do you believe that your curated self-image on social media apps accurately represents your physical self offline?",
+            "Do you believe that the digital world negatively impacts the way you see yourself?",
+            "Could you could live happily without access to the digital world?",
+            "Has your ability to pay attention to the mundane been altered by social media use?"
+        ];
+
+        var currentQuestion = 0;
+        var yesButton, noButton, questionText;
+
         p.setup = function() {
             let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
             canvas.parent('page4');
@@ -272,9 +283,106 @@ function initializeMorphVideo() {
             video = p.createCapture(p.VIDEO);
             video.size(320, 240);
             video.hide();
+
+            //makes the questions appear above the video portion 
+            questionText = p.createDiv(questions[currentQuestion]);
+            questionText.parent('page4');
+            questionText.style('color', 'red'); //remember to change color if it looks shitty 
+            questionText.style('font-size', '24px');
+            questionText.style('text-align', 'center');
+            questionText.style('position', 'absolute');
+            questionText.style('width', '100%');
+            updateQuestionPosition();
+
+            //YAAAAAS Button
+            yesButton = p.createButton('YES');
+            yesButton.parent('page4');
+            yesButton.style('background-color', 'transparent');
+            yesButton.style('border', '2px solid red');
+            yesButton.style('color', 'red');
+            yesButton.style('padding', '10px 40px');
+            yesButton.style('font-size', '18px');
+            yesButton.style('cursor', 'pointer');
+            yesButton.style('font-family', 'Arial');
+            yesButton.style('position', 'absolute');
+            yesButton.style('transition', 'all 0.3s');
+            yesButton.mousePressed(answerQuestion);
+            
+            // Hover effects for YES button
+            yesButton.mouseOver(() => {
+                yesButton.style('background-color', 'red');
+                yesButton.style('color', 'black');
+            });
+            yesButton.mouseOut(() => {
+                yesButton.style('background-color', 'transparent');
+                yesButton.style('color', 'red');
+            });
+
+            //NAAAAAUUUUR Button
+            noButton = p.createButton('NO');
+            noButton.parent('page4');
+            noButton.style('background-color', 'transparent');
+            noButton.style('border', '2px solid red');
+            noButton.style('color', 'red');
+            noButton.style('padding', '10px 40px');
+            noButton.style('font-size', '18px');
+            noButton.style('cursor', 'pointer');
+            noButton.style('font-family', 'Arial');
+            noButton.style('position', 'absolute');
+            noButton.style('transition', 'all 0.3s');
+            noButton.mousePressed(answerQuestion);
+            
+            // Hover effects for NO button
+            noButton.mouseOver(() => {
+                noButton.style('background-color', 'red');
+                noButton.style('color', 'black');
+            });
+            noButton.mouseOut(() => {
+                noButton.style('background-color', 'transparent');
+                noButton.style('color', 'red');
+            });
+
+            updateButtonPositions();
         };
 
+        //Position of buttons 
+        function updateQuestionPosition() {
+            let windowH = 400;
+            let y = (p.height - windowH) / 2;
+            questionText.style('top', (y - 80) + 'px');
+        }
+
+        function updateButtonPositions() {
+            let windowW = 450;
+            let windowH = 400;
+            let x = (p.width - windowW) / 2;
+            let y = (p.height - windowH) / 2;
+
+            yesButton.position(x - 100, y + windowH / 2 - 25);
+            noButton.position(x + windowW + 20, y + windowH / 2 - 25);
+        }
+
+        //more Q&A sush
+        function answerQuestion() {
+            currentQuestion++;
+
+            if (currentQuestion < questions.length) {
+                questionText.html(questions[currentQuestion]);
+            } else {
+                questionText.remove();
+                yesButton.remove();
+                noButton.remove();
+
+                const page5 = document.getElementById('page5');
+                if (page5) {
+                    page5.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }
+
         p.draw = function() {
+            p.background(0);
+
             let windowW = 450;
             let windowH = 400;
 
@@ -287,6 +395,12 @@ function initializeMorphVideo() {
             p.rect(x, y, windowW, windowH);
 
             p.image(video, x, y, windowW, windowH);
+        };
+
+        p.windowResized = function() {
+            p.resizeCanvas(p.windowWidth, p.windowHeight);
+            updateQuestionPosition();
+            updateButtonPositions();
         };
     });
 }

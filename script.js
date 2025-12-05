@@ -24,9 +24,8 @@ enterBtn.addEventListener('click', function() {
     if (name !== '') {
         page2.scrollIntoView({ behavior: 'smooth' });
 
-        // Fade out plus signs in place
-        const plusSigns = document.querySelectorAll('.plus');
-        plusSigns.forEach(p => p.classList.add('fade-out'));
+        // Start typewriter effect on page 2
+        startPage2Typewriter();
 
     } else {
         // What happens if no name is entered 
@@ -42,6 +41,79 @@ nameBox.addEventListener('keypress', function(e) {
     }
 });
 
+// Page 2 typewriter effect
+var page2TypewriterActive = false;
+
+function startPage2Typewriter() {
+    if (page2TypewriterActive) return;
+    page2TypewriterActive = true;
+
+    const paragraphs = document.querySelectorAll('#page2 .content p');
+    const nextButton = document.getElementById('nextBtn');
+    
+    // Store original text
+    const originalTexts = [];
+    paragraphs.forEach(p => {
+        originalTexts.push(p.textContent);
+        p.textContent = '';
+    });
+
+    // Hide button initially
+    nextButton.style.display = 'none';
+
+    let currentParagraph = 0;
+    let currentChar = 0;
+    let cursorVisible = true;
+    let lastCursorBlink = Date.now();
+
+    function typeWriter() {
+        if (currentParagraph < paragraphs.length) {
+            const text = originalTexts[currentParagraph];
+            
+            if (currentChar < text.length) {
+                // Typing
+                paragraphs[currentParagraph].textContent = text.substring(0, currentChar + 1) + '▍';
+                currentChar++;
+                setTimeout(typeWriter, 75);
+            } else {
+                // Finished this paragraph
+                paragraphs[currentParagraph].textContent = text;
+                currentParagraph++;
+                currentChar = 0;
+                
+                if (currentParagraph < paragraphs.length) {
+                    setTimeout(typeWriter, 200);
+                } else {
+                    // All done, show button with blinking cursor
+                    startCursorBlink();
+                }
+            }
+        }
+    }
+
+    function startCursorBlink() {
+        const lastP = paragraphs[paragraphs.length - 1];
+        const finalText = originalTexts[originalTexts.length - 1];
+        
+        // Fade out plus signs when typing finishes
+        const plusSigns = document.querySelectorAll('.plus');
+        plusSigns.forEach(p => p.classList.add('fade-out'));
+        
+        setInterval(() => {
+            if (cursorVisible) {
+                lastP.textContent = finalText + '▍';
+            } else {
+                lastP.innerHTML = finalText + '<span style="opacity:0;">▍</span>';
+            }
+            cursorVisible = !cursorVisible;
+        }, 500);
+        
+        nextButton.style.display = 'block';
+    }
+
+    typeWriter();
+}
+
 var p5Initialized = false;
 
 // Next key event
@@ -50,6 +122,10 @@ const page3 = document.getElementById('page3');
 
 nextBtn.addEventListener('click', function() {
     page3.scrollIntoView({ behavior: 'smooth' });
+
+    // Fade out plus signs in place
+    const plusSigns = document.querySelectorAll('.plus');
+    plusSigns.forEach(p => p.classList.add('fade-out'));
 
     //makes sure this only starts when user gets to page 3 
     if (!p5Initialized) {
@@ -366,8 +442,8 @@ function initializeMorphVideo() {
             let x = (p.width - windowW) / 2;
             let y = (p.height - windowH) / 2;
 
-            yesButton.position(x - 250, y + windowH / 2 - 25);
-            noButton.position(x + windowW + 140, y + windowH / 2 - 25);
+            yesButton.position(x - 100, y + windowH / 2 - 25);
+            noButton.position(x + windowW + 20, y + windowH / 2 - 25);
         }
 
         function startTyping() {

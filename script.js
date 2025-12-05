@@ -163,6 +163,7 @@ function initializeCamera() {
                 button.mousePressed(function() {
                     const page4 = document.getElementById('page4');
                     if (page4) {
+                        button.style('display', 'none');
                         page4.scrollIntoView({ behavior: 'smooth' });
 
                         //makes sure this only starts when user gets to page 4
@@ -274,6 +275,12 @@ function initializeMorphVideo() {
 
         var currentQuestion = 0;
         var yesButton, noButton, questionText;
+        //typewriter vibe wooooooo
+        var typewriterIndex = 0;
+        var isTyping = false;
+        var typewriterSpeed = 50;
+        var cursorBlink = true;
+        var lastBlinkTime = 0;
 
         p.setup = function() {
             let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
@@ -285,7 +292,7 @@ function initializeMorphVideo() {
             video.hide();
 
             //makes the questions appear above the video portion 
-            questionText = p.createDiv(questions[currentQuestion]);
+            questionText = p.createDiv('');
             questionText.parent('page4');
             questionText.style('color', 'red'); //remember to change color if it looks shitty 
             questionText.style('font-size', '24px');
@@ -343,6 +350,7 @@ function initializeMorphVideo() {
             });
 
             updateButtonPositions();
+            startTyping();
         };
 
         //Position of buttons 
@@ -358,16 +366,58 @@ function initializeMorphVideo() {
             let x = (p.width - windowW) / 2;
             let y = (p.height - windowH) / 2;
 
-            yesButton.position(x - 100, y + windowH / 2 - 25);
-            noButton.position(x + windowW + 20, y + windowH / 2 - 25);
+            yesButton.position(x - 250, y + windowH / 2 - 25);
+            noButton.position(x + windowW + 140, y + windowH / 2 - 25);
         }
 
-        //more Q&A sush
+        function startTyping() {
+            typewriterIndex = 0;
+            isTyping = true;
+            //buttons are hiding when typing :) 
+            if(yesButton) yesButton.style('display', 'none');
+            if(noButton) noButton.style('display', 'none');
+        }
+
+        function updateTypewriter() {
+            if (isTyping) {
+                if (typewriterIndex <= questions[currentQuestion].length) {
+                    let displayText = questions[currentQuestion].substring(0, typewriterIndex);
+
+                    ///blink blink blink
+                    displayText += '▍';
+                    
+                    questionText.html(displayText);
+                    typewriterIndex++;
+                } else {
+                    isTyping = false;
+                    if (yesButton) yesButton.style('display', 'block');
+                    if (noButton) noButton.style('display', 'block');
+                }
+            }
+            
+            if (!isTyping) {
+                let displayText = questions[currentQuestion];
+                if (cursorBlink) {
+                    displayText += '▍';
+                } else {
+                    displayText += '<span style="opacity:0;">▍</span>';
+                }
+                questionText.html(displayText);
+            }
+            
+            if (p.millis() - lastBlinkTime > 500) {
+                cursorBlink = !cursorBlink;
+                lastBlinkTime = p.millis();
+            }
+        }
+
+        //more Q&A ish
         function answerQuestion() {
+            if (isTyping) return;
             currentQuestion++;
 
             if (currentQuestion < questions.length) {
-                questionText.html(questions[currentQuestion]);
+                startTyping();
             } else {
                 questionText.remove();
                 yesButton.remove();
@@ -382,6 +432,11 @@ function initializeMorphVideo() {
 
         p.draw = function() {
             p.background(0);
+
+            //more typewriter/ speed of typer
+            if (p.frameCount % 3 === 0) { 
+                updateTypewriter();
+            }
 
             let windowW = 450;
             let windowH = 400;

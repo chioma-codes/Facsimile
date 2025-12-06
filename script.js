@@ -442,8 +442,8 @@ function initializeMorphVideo() {
             let x = (p.width - windowW) / 2;
             let y = (p.height - windowH) / 2;
 
-            yesButton.position(x - 100, y + windowH / 2 - 25);
-            noButton.position(x + windowW + 20, y + windowH / 2 - 25);
+            yesButton.position(x - 240, y + windowH / 2 - 25);
+            noButton.position(x + windowW + 150, y + windowH / 2 - 25);
         }
 
         function startTyping() {

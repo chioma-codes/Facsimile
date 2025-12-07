@@ -22,6 +22,21 @@ enterBtn.addEventListener('click', function() {
     const name = nameBox.value.trim();
 
     if (name !== '') {
+
+   //fetch request to log the name of the current user 
+        let obj = { "name" : name };
+        let jsonData = JSON.stringify(obj);
+
+        fetch('/name', {
+            method: 'POST',
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: jsonData
+        })
+        .then(response => response.json())
+        .then(data => { console.log('test', data) });
+
         page2.scrollIntoView({ behavior: 'smooth' });
 
         // Start typewriter effect on page 2
@@ -345,7 +360,7 @@ function initializeMorphVideo() {
             "Do you believe that digital media has an impact on the way you rationalize and perceive the real world around you?",
             "Do you believe that your curated self-image on social media apps accurately represents your physical self offline?",
             "Do you believe that the digital world negatively impacts the way you see yourself?",
-            "Could you could live happily without access to the digital world?",
+            "Could you live happily without access to the digital world?",
             "Has your ability to pay attention to the mundane been altered by social media use?"
         ];
 

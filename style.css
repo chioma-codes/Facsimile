@@ -82,27 +82,27 @@ input:focus {
 .top-left {
     top: 30px;
     left: 30px;
-    animation: bounceFromTopLeft 8s ease-in-out infinite;
+    animation: bounceFromTopLeft 12s ease-in-out infinite;
 
 }
 /* BLUE TOP RIGHT  */
 .top-right {
     top: 30px;
     right: 30px;
-    animation: bounceFromTopRight 8s ease-in-out infinite;
+    animation: bounceFromTopRight 12s ease-in-out infinite;
 }
 
 /* BLUE BOTTOM LEFT */
 .bottom-left {
     bottom: 30px;
     left: 30px;
-    animation: bounceFromBottomLeft 8s ease-in-out infinite;
+    animation: bounceFromBottomLeft 12s ease-in-out infinite;
 }
 /* RED BOTTOM RIGHT */
 .bottom-right {
     bottom: 30px;
     right: 30px;
-    animation: bounceFromBottomRight 8s ease-in-out infinite;
+    animation: bounceFromBottomRight 12s ease-in-out infinite;
 }
 
 /* Movement for the plus signs, they move closer to the center then return to og corner */
@@ -113,9 +113,9 @@ input:focus {
         transform: translate(0, 0);
     }
     50% {
-        transform: translate(calc(50vw - 250px), calc(50vh - 120px));
+        transform: translate(calc(50vw - 350px), calc(50vh - 170px));
     }
-    /* had to change the 140px number to make sure the plus comes into the middle more  */
+    /* had to change the 250px number to make sure the plus comes into the middle more  */
 }
 
 /* BLUE TOP RIGHT  */
@@ -124,7 +124,7 @@ input:focus {
         transform: translate(0, 0);
     }
     50% {
-        transform: translate(calc(-50vw + 250px), calc(50vh - 120px));
+        transform: translate(calc(-50vw + 350px), calc(50vh - 170px));
     }
 }
 
@@ -133,7 +133,7 @@ input:focus {
         transform: translate(0, 0);
     }
     50% {
-        transform: translate(calc(50vw - 250px), calc(-50vh + 190px));
+        transform: translate(calc(50vw - 350px), calc(-50vh + 280px));
     }
 }
 
@@ -142,7 +142,7 @@ input:focus {
         transform: translate(0, 0);
     }
     50% {
-        transform: translate(calc(-50vw + 250px), calc(-50vh + 190px));
+        transform: translate(calc(-50vw + 350px), calc(-50vh + 280px));
     }
 }
 

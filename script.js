@@ -178,7 +178,7 @@ function initializeCamera() {
 
             faceapi = ml5.faceApi(video, faceOptions, faceReady);
 
-            button = p.createButton('snap');
+            button = p.createButton('snap photo');
             button.parent('p5-container');
             button.style('display', 'none');
             button.mousePressed(takepic);

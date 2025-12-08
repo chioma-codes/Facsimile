@@ -227,14 +227,36 @@ function initializeCamera() {
             }
         }
 
+        // Function to upload p5.Graphics to Cloudinary
+        function uploadToCloudinary(graphics) {
+            // Convert p5.Graphics to blob
+            graphics.canvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append('photo', blob, 'face-front.jpg');
+                
+                try {
+                    const response = await fetch('/upload-photo', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        console.log('Photo uploaded to gallery!', result.userName);
+                    }
+                } catch (error) {
+                    console.error('Upload failed:', error);
+                }
+            }, 'image/jpeg', 0.9);
+        }
+
         function takepic() {
-            ////// 
             let snapshot = p.createGraphics(320, 240);
 
             snapshot.tint(42, 113, 219);
             snapshot.image(video, 0, 0, 320, 240);
             snapshot.noTint();
-            //////
 
             if (detections.length > 0) {
                 let scaleX = 320 / video.width;
@@ -243,10 +265,15 @@ function initializeCamera() {
             }
 
             snapshots.push(snapshot);
+            
+            // Upload FIRST photo to Cloudinary
+            if (currentBox === 1) {
+                uploadToCloudinary(snapshot);
+            }
+            
             currentBox++;
 
             if (currentBox > 3) {
-                //change snap button to arrow button to go to page 4
                 button.html('→');
                 button.style('font-size', '24px');
                 button.style('display', 'block');
@@ -257,7 +284,6 @@ function initializeCamera() {
                         button.style('display', 'none');
                         page4.scrollIntoView({ behavior: 'smooth' });
 
-                        //makes sure this only starts when user gets to page 4
                         if (!pg4Initialized) {
                             initializeMorphVideo();
                             pg4Initialized = true;
@@ -548,5 +574,37 @@ function initializeMorphVideo() {
             updateQuestionPosition();
             updateButtonPositions();
         };
+    });
+}
+
+// Load gallery photos for Page 6
+async function loadGallery() {
+    try {
+        const response = await fetch('/gallery-photos');
+        const photos = await response.json();
+        
+        const gallery = document.getElementById('gallery');
+        gallery.innerHTML = photos.map(photo => `
+            <div class="photo-card">
+                <img src="${photo.url}" alt="${photo.userName}">
+                <p>${photo.userName}</p>
+                <small>${new Date(photo.uploadDate).toLocaleString()}</small>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Failed to load gallery:', error);
+    }
+}
+
+// Navigate from page 5 to gallery
+const page5NextBtn = document.getElementById('page5NextBtn');
+if (page5NextBtn) {
+    page5NextBtn.addEventListener('click', function() {
+        const page6 = document.getElementById('page6');
+        if (page6) {
+            page6.scrollIntoView({ behavior: 'smooth' });
+            // Load gallery photos
+            loadGallery();
+        }
     });
 }

@@ -217,3 +217,72 @@ input:focus {
     background-color: red !important;
     color: black !important;
 }
+
+/* Camera styling */
+.camera-container {
+    text-align: center;
+    padding: 20px;
+}
+
+#video {
+    width: 100%;
+    max-width: 500px;
+    border: 2px solid #333;
+    border-radius: 10px;
+    margin: 20px auto;
+    display: block;
+}
+
+#captureBtn {
+    padding: 15px 30px;
+    font-size: 18px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px;
+}
+
+#captureBtn:hover {
+    background-color: #45a049;
+}
+
+/* Gallery styling */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.photo-card {
+    border:2px solid white; 
+    border-radius: 0;
+    padding: 15px;
+    text-align: center;
+    background: black;
+    box-shadow: none
+}
+
+.photo-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 0px;
+    margin-bottom: 10px;
+}
+
+.photo-card p {
+    margin: 5px 0;
+    font-weight: bold;
+    color: red;
+    font-size: 18px;
+}
+
+.photo-card small {
+    color: red;
+    display: block;
+    margin-top: 5px;
+}

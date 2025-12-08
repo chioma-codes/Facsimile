@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Enter Name</title>
+    <title>FACSIMILE</title>
     <link rel="stylesheet" href="style.css">
 
      <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
@@ -16,7 +16,7 @@
     <div class="plus bottom-right red">+</div>
 
     <!-- PAGE 1: your name section-->
-     <!-- I had an ectra <div> on this first line after page1 causing the event listener to not work and for the enter botton to not show -->
+     <!-- I had an extra <div> on this first line after page1 causing the event listener to not work and for the enter botton to not show -->
       <div class="page" id="page1">
     <div class="center">
         <p>type your name</p>
@@ -37,9 +37,9 @@
     </div>
 
     <!-- PAGE 3:Yay p5 my fave -->
-    <div class="page" id="page3">
-        <div id="p5-container"></div>
-    </div>
+  <div class="page" id="page3">
+    <div id="p5-container"></div>
+</div>
 
     <!-- Page:4  -->
    <div class="page" id="page4">
@@ -50,13 +50,21 @@
 
 <div class="page" id="page5">
     <div class="content">
-            <p>This is placeholder text line one</p>
-            <p>This is placeholder text line two</p>
-            <p>This is placeholder text line three</p>
-            <!-- button on page two to move on to then final page -->
-            <button id="nextBtn">→</button>
-        </div>
+        <p>This is placeholder text line one</p>
+        <p>This is placeholder text line two</p>
+        <p>This is placeholder text line three</p>
+        <!-- button on page five to move on to the gallery -->
+        <button id="page5NextBtn">→</button>
     </div>
+</div>
+
+    <!-- Page 6: Gallery -->
+<div class="page" id="page6">
+    <div class="content">
+        <h1>Photo Gallery</h1>
+        <div id="gallery" class="gallery-grid"></div>
+    </div>
+</div>
     
     <script src="script.js"></script>
     

@@ -165,10 +165,10 @@ input:focus {
     border: 2px solid red;
     color: red;
     padding: 10px 40px;
-    font-size: 24px;
+    font-size: 14px;  
     cursor: pointer;
     transition: all 0.3s;
-    margin-top: 20px; /* spacing below the text */
+    margin-top: 20px;
 }
 
 #nextBtn:hover {
@@ -244,8 +244,20 @@ input:focus {
     margin: 10px;
 }
 
-#captureBtn:hover {
-    background-color: #45a049;
+#page5NextBtn {
+    background-color: transparent;
+    border: 2px solid red;
+    color: red;
+    padding: 10px 40px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 20px;
+}
+
+#page5NextBtn:hover {
+    background-color: red;
+    color: black;
 }
 
 /* Gallery styling */
@@ -285,4 +297,245 @@ input:focus {
     color: red;
     display: block;
     margin-top: 5px;
+}
+
+/* Page 1 FACSIMILE typewriter styles */
+.facsimile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    opacity: 1;
+    transition: opacity 1.5s ease-out;
+}
+
+.facsimile-container.fade-out {
+    opacity: 0;
+}
+
+.name-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    opacity: 0;
+    transition: opacity 1.5s ease-in;
+}
+
+.name-section.fade-in {
+    opacity: 1;
+}
+
+.name-section p {
+    margin-bottom: 20px;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+.name-section input {
+    margin: 0;
+}
+
+.name-section button {
+    margin: 0;
+}
+
+#facsimileTyper {
+    font-size: 48px;
+    color: white;
+    font-family: Arial, monospace;
+}
+
+/* Page 6 specific styling */
+#page6 {
+    display: block;
+    padding-top: 120px;
+    padding-bottom: 120px;
+    min-height: 100vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+#page6 .content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Page 6 Gallery Header */
+.gallery-header {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 32px;
+    margin: 0;
+    text-align: center;
+    z-index: 1000;
+}
+
+/* Gallery styling */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.photo-card {
+    border: 2px solid white; 
+    border-radius: 0;
+    padding: 15px;
+    text-align: center;
+    background: black;
+    box-shadow: none;
+}
+
+.photo-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 0px;
+    margin-bottom: 10px;
+}
+
+.photo-card p {
+    margin: 5px 0;
+    font-weight: bold;
+    color: red;
+    font-size: 18px;
+}
+
+.photo-card small {
+    color: red;
+    display: block;
+    margin-top: 5px;
+}
+
+/* Restart button on Page 6 */
+#restartBtn {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: transparent;
+    border: 2px solid red;
+    color: red;
+    padding: 10px 40px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: Arial;
+    z-index: 1000;
+    display: none;
+    animation: blink 1.5s infinite;
+}
+
+#restartBtn:hover {
+    background-color: red;
+    color: black;
+    animation: none;
+}
+
+/* Blinking animation for restart button */
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+/* Page 7: Answers Page */
+#page7 {
+    display: block;
+    padding-top: 120px;
+    padding-bottom: 120px;
+    min-height: 100vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.answers-header {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 32px;
+    margin: 0;
+    text-align: center;
+    z-index: 1000;
+    width: 100%;
+}
+
+.answers-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.answers-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.answer-card {
+    border: 2px solid white;
+    padding: 20px;
+    background: black;
+}
+
+.answer-card h3 {
+    color: red;
+    font-size: 24px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.answer-card .question {
+    color: white;
+    font-size: 16px;
+    margin: 10px 0 5px 0;
+    font-weight: bold;
+}
+
+.answer-card .answer {
+    color: #4da6ff;
+    font-size: 18px;
+    margin: 5px 0 15px 20px;
+}
+
+/* Second restart button on Page 7 */
+#restartBtn2 {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: transparent;
+    border: 2px solid red;
+    color: red;
+    padding: 10px 40px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: Arial;
+    z-index: 1000;
+    animation: blink 1.5s infinite;
+}
+
+#restartBtn2:hover {
+    background-color: red;
+    color: black;
+    animation: none;
 }

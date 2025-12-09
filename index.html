@@ -16,21 +16,25 @@
     <div class="plus bottom-right red">+</div>
 
     <!-- PAGE 1: your name section-->
-     <!-- I had an extra <div> on this first line after page1 causing the event listener to not work and for the enter botton to not show -->
-      <div class="page" id="page1">
-    <div class="center">
+   <div id="page1" class="page">
+    <div id="facsimileText" class="facsimile-container">
+        <h1 id="facsimileTyper"></h1>
+    </div>
+    <div id="nameSection" class="name-section" style="display: none;">
         <p>type your name</p>
-        <input type="text" id="nameBox">
-           <button id="enterBtn">enter</button>
+        <div class="input-group">
+           <input type="text" id="nameBox">
+            <button id="enterBtn">enter</button>
         </div>
-           </div>
+    </div>
+</div>
 
 
     <!-- PAGE 2: we are scrolling smiley face  -->
      <div class="page" id="page2">
         <div class="content">
-            <p>“It’s a saying they have, that a man has a false heart in his mouth for the world to see, another in his breast to show to his special friends and his family, and the real one, the true one, the secret one, which is never known to anyone except to himself alone, hidden only God knows where.”</p>
-            <p>― James Clavell, Shōgun (1975)</p>
+            <p>"It's a saying they have, that a man has a false heart in his mouth for the world to see, another in his breast to show to his special friends and his family, and the real one, the true one, the secret one, which is never known to anyone except to himself alone, hidden only God knows where."</p>
+            <p>― James Clavell, Shōgun (1975)</p>
             <!-- button on page two to move on to page three -->
             <button id="nextBtn">→</button>
         </div>
@@ -58,12 +62,22 @@
     </div>
 </div>
 
-    <!-- Page 6: Gallery -->
+<!-- Page 6: Gallery -->
 <div class="page" id="page6">
+    <h1 class="gallery-header">ID COLLECTION</h1>
     <div class="content">
-        <h1>Photo Gallery</h1>
         <div id="gallery" class="gallery-grid"></div>
     </div>
+    <button id="restartBtn">restart journey</button>
+</div>
+
+<!-- Page 7: Digital Dilemma Answers -->
+<div class="page" id="page7">
+    <h1 class="answers-header">digital dilemma responses</h1>
+    <div class="answers-content">
+        <div id="answersGrid" class="answers-grid"></div>
+    </div>
+    <button id="restartBtn2">restart journey</button>
 </div>
     
     <script src="script.js"></script>

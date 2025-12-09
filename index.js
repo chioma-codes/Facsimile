@@ -4,20 +4,27 @@ const multer = require('multer');
 const { v2: cloudinary } = require('cloudinary');
 const app = express();
 
-
-//configuring Cloudinary here
+// Cloudinary Configuration - MUST come after dotenv.config()
 cloudinary.config({ 
     cloud_name: 'dbvcnowa8', 
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
- });
+});
+
+// Test if config loaded properly
+console.log('Cloudinary Config:', {
+    cloud_name: cloudinary.config().cloud_name,
+    api_key: cloudinary.config().api_key ? 'SET' : 'MISSING',
+    api_secret: cloudinary.config().api_secret ? 'SET' : 'MISSING'
+});
 
 // Configure multer to store files in memory
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 let nameTracker = [];
-let galleryPhotos = []; // Store gallery images
+let galleryPhotos = [];
+let userAnswers = []; // NEW: Array to store user answers
 
 app.use(express.static(__dirname));
 app.use(express.json());
@@ -31,9 +38,31 @@ app.post('/name', (req, res) => {
         usersName: req.body.name
     }
 
-nameTracker.push(obj);
-console.log(nameTracker);
+    nameTracker.push(obj);
+    console.log(nameTracker);
     res.json({ task: req.body });
+});
+
+// NEW: Route to save user answers
+app.post('/save-answers', (req, res) => {
+    console.log('Answers received:', req.body);
+    
+    let currentDate = new Date();
+    let obj = {
+        date: currentDate,
+        userName: req.body.userName,
+        answers: req.body.answers
+    };
+    
+    userAnswers.push(obj);
+    console.log('User answers saved:', userAnswers);
+    
+    res.json({ success: true, userName: req.body.userName });
+});
+
+// NEW: Route to get all user answers
+app.get('/user-answers', (req, res) => {
+    res.json(userAnswers);
 });
 
 // New route for photo upload - Mix of Claude and the provided CLOUDINARY CODE
@@ -79,8 +108,6 @@ app.post('/upload-photo', upload.single('photo'), async (req, res) => {
 app.get('/gallery-photos', (req, res) => {
     res.json(galleryPhotos);
 });
-
-
 
 app.listen(3000, () => {
     console.log('Go to: http://localhost:3000');

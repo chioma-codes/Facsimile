@@ -12,48 +12,96 @@ window.addEventListener("scroll", () => {
     }
 });
 
-
-const enterBtn = document.getElementById('enterBtn');
-const nameBox = document.getElementById('nameBox');
-const page2 = document.getElementById('page2');
-
-// Click event to move to to page 2
-enterBtn.addEventListener('click', function() {
-    const name = nameBox.value.trim();
-
-    if (name !== '') {
-
-   //fetch request to log the name of the current user 
-        let obj = { "name" : name };
-        let jsonData = JSON.stringify(obj);
-
-        fetch('/name', {
-            method: 'POST',
-            headers: {
-                "Content-type": "application/json"
-            },
-            body: jsonData
-        })
-        .then(response => response.json())
-        .then(data => { console.log('test', data) });
-
-        page2.scrollIntoView({ behavior: 'smooth' });
-
-        // Start typewriter effect on page 2
-        startPage2Typewriter();
-
-    } else {
-        // What happens if no name is entered 
-        alert('You must have a name, right?');
+// Page 1 FACSIMILE typewriter effect
+window.addEventListener('DOMContentLoaded', function() {
+    const facsimileTyper = document.getElementById('facsimileTyper');
+    const facsimileContainer = document.getElementById('facsimileText');
+    const nameSection = document.getElementById('nameSection');
+    const enterBtn = document.getElementById('enterBtn');
+    const nameBox = document.getElementById('nameBox');
+    const page2 = document.getElementById('page2');
+    
+    const text = "FACSIMILE..";
+    let charIndex = 0;
+    let cursorVisible = true;
+    
+    function typeFacsimile() {
+        if (charIndex < text.length) {
+            facsimileTyper.textContent = text.substring(0, charIndex + 1) + '▍';
+            charIndex++;
+            setTimeout(typeFacsimile, 150);
+        } else {
+            // Typing complete, start cursor blink
+            startFacsimileCursorBlink();
+            
+            // After 2 seconds, fade out and show name section
+            setTimeout(function() {
+                facsimileContainer.classList.add('fade-out');
+                
+                // Wait for fade out, then show name section
+                setTimeout(function() {
+                    facsimileContainer.style.display = 'none';
+                    nameSection.style.display = 'flex';
+                    
+                    // Trigger fade in
+                    setTimeout(function() {
+                        nameSection.classList.add('fade-in');
+                    }, 50);
+                }, 1500);
+            }, 2000);
+        }
     }
-});
-
-
-// Enter key event
-nameBox.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        enterBtn.click();
+    
+    function startFacsimileCursorBlink() {
+        setInterval(function() {
+            if (cursorVisible) {
+                facsimileTyper.textContent = text + '▍';
+            } else {
+                facsimileTyper.innerHTML = text + '<span style="opacity:0;">▍</span>';
+            }
+            cursorVisible = !cursorVisible;
+        }, 500);
     }
+    
+    // Start the typewriter effect
+    typeFacsimile();
+    
+    // Set up enter button click event
+    enterBtn.addEventListener('click', function() {
+        const name = nameBox.value.trim();
+
+        if (name !== '') {
+            // Fetch request to log the name of the current user 
+            let obj = { "name" : name };
+            let jsonData = JSON.stringify(obj);
+
+            fetch('/name', {
+                method: 'POST',
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: jsonData
+            })
+            .then(response => response.json())
+            .then(data => { console.log('test', data) });
+
+            page2.scrollIntoView({ behavior: 'smooth' });
+
+            // Start typewriter effect on page 2
+            startPage2Typewriter();
+
+        } else {
+            // What happens if no name is entered 
+            alert('You must have a name, right?');
+        }
+    });
+
+    // Enter key event
+    nameBox.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            enterBtn.click();
+        }
+    });
 });
 
 // Page 2 typewriter effect
@@ -398,6 +446,7 @@ function initializeMorphVideo() {
         var typewriterSpeed = 50;
         var cursorBlink = true;
         var lastBlinkTime = 0;
+        var userAnswers = []; // ADDED THIS LINE
 
         p.setup = function() {
             let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
@@ -430,7 +479,7 @@ function initializeMorphVideo() {
             yesButton.style('font-family', 'Arial');
             yesButton.style('position', 'absolute');
             yesButton.style('transition', 'all 0.3s');
-            yesButton.mousePressed(answerQuestion);
+            yesButton.mousePressed(() => answerQuestion("YES")); // CHANGED THIS LINE
             
             // Hover effects for YES button
             yesButton.mouseOver(() => {
@@ -454,7 +503,7 @@ function initializeMorphVideo() {
             noButton.style('font-family', 'Arial');
             noButton.style('position', 'absolute');
             noButton.style('transition', 'all 0.3s');
-            noButton.mousePressed(answerQuestion);
+            noButton.mousePressed(() => answerQuestion("NO")); // CHANGED THIS LINE
             
             // Hover effects for NO button
             noButton.mouseOver(() => {
@@ -529,13 +578,39 @@ function initializeMorphVideo() {
         }
 
         //more Q&A ish
-        function answerQuestion() {
+        function answerQuestion(buttonAnswer) {
             if (isTyping) return;
+            
+            // Store the answer
+            userAnswers.push({
+                question: questions[currentQuestion],
+                answer: buttonAnswer
+            });
+            
             currentQuestion++;
 
             if (currentQuestion < questions.length) {
                 startTyping();
             } else {
+                // All questions answered - send to backend
+                const userName = document.getElementById('nameBox').value.trim();
+                
+                let obj = { 
+                    "userName": userName,
+                    "answers": userAnswers 
+                };
+                let jsonData = JSON.stringify(obj);
+
+                fetch('/save-answers', {
+                    method: 'POST',
+                    headers: {
+                        "Content-type": "application/json"
+                    },
+                    body: jsonData
+                })
+                .then(response => response.json())
+                .then(data => { console.log('Answers saved:', data) });
+                
                 questionText.remove();
                 yesButton.remove();
                 noButton.remove();
@@ -598,13 +673,77 @@ async function loadGallery() {
 
 // Navigate from page 5 to gallery
 const page5NextBtn = document.getElementById('page5NextBtn');
+const restartBtn = document.getElementById('restartBtn');
+const viewAnswersBtn = document.getElementById('viewAnswersBtn');
+const restartBtn2 = document.getElementById('restartBtn2');
+
 if (page5NextBtn) {
     page5NextBtn.addEventListener('click', function() {
         const page6 = document.getElementById('page6');
         if (page6) {
             page6.scrollIntoView({ behavior: 'smooth' });
-            // Load gallery photos
             loadGallery();
+            
+            // Show buttons when reaching page 6
+            if (restartBtn) {
+                restartBtn.style.display = 'block';
+            }
+            if (viewAnswersBtn) {
+                viewAnswersBtn.style.display = 'block';
+            }
         }
     });
+}
+
+// Restart button functionality (Page 6)
+if (restartBtn) {
+    restartBtn.addEventListener('click', function() {
+        location.reload();
+    });
+}
+
+// View answers button functionality
+if (viewAnswersBtn) {
+    viewAnswersBtn.addEventListener('click', function() {
+        const page7 = document.getElementById('page7');
+        if (page7) {
+            page7.scrollIntoView({ behavior: 'smooth' });
+            loadAnswers();
+        }
+    });
+}
+
+// Restart button functionality (Page 7)
+if (restartBtn2) {
+    restartBtn2.addEventListener('click', function() {
+        location.reload();
+    });
+}
+
+// Load answers from users
+async function loadAnswers() {
+    try {
+        const response = await fetch('/user-answers');
+        const answers = await response.json();
+        
+        const answersGrid = document.getElementById('answersGrid');
+        
+        if (answers.length === 0) {
+            answersGrid.innerHTML = '<p style="color: white; text-align: center;">No responses yet. Be the first!</p>';
+            return;
+        }
+        
+        answersGrid.innerHTML = answers.map(user => `
+            <div class="answer-card">
+                <h3>${user.userName}</h3>
+                ${user.answers.map((answer, index) => `
+                    <div class="question">Q${index + 1}: ${answer.question}</div>
+                    <div class="answer">${answer.answer}</div>
+                `).join('')}
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Failed to load answers:', error);
+        document.getElementById('answersGrid').innerHTML = '<p style="color: red; text-align: center;">Failed to load responses.</p>';
+    }
 }

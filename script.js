@@ -1,14 +1,20 @@
-//scroll lock function
+//scroll lock function - FIXED
 let currentPage = 1;
+let isScrolling = false;
 
 window.addEventListener("scroll", () => {
+    if (isScrolling) return;
+    
     const allowedTop = window.innerHeight * (currentPage - 1);
+    const currentScrollY = window.scrollY;
 
-    if (window.scrollY < allowedTop) {
+    if (currentScrollY < allowedTop) {
+        isScrolling = true;
         window.scrollTo({
             top: allowedTop,
-            behavior: "auto"
+            behavior: "instant"
         });
+        setTimeout(() => { isScrolling = false; }, 100);
     }
 });
 
@@ -31,19 +37,15 @@ window.addEventListener('DOMContentLoaded', function() {
             charIndex++;
             setTimeout(typeFacsimile, 150);
         } else {
-            // Typing complete, start cursor blink
             startFacsimileCursorBlink();
             
-            // After 2 seconds, fade out and show name section
             setTimeout(function() {
                 facsimileContainer.classList.add('fade-out');
                 
-                // Wait for fade out, then show name section
                 setTimeout(function() {
                     facsimileContainer.style.display = 'none';
                     nameSection.style.display = 'flex';
                     
-                    // Trigger fade in
                     setTimeout(function() {
                         nameSection.classList.add('fade-in');
                     }, 50);
@@ -63,15 +65,12 @@ window.addEventListener('DOMContentLoaded', function() {
         }, 500);
     }
     
-    // Start the typewriter effect
     typeFacsimile();
     
-    // Set up enter button click event
     enterBtn.addEventListener('click', function() {
         const name = nameBox.value.trim();
 
         if (name !== '') {
-            // Fetch request to log the name of the current user 
             let obj = { "name" : name };
             let jsonData = JSON.stringify(obj);
 
@@ -85,18 +84,15 @@ window.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => { console.log('test', data) });
 
+            currentPage = 2;
             page2.scrollIntoView({ behavior: 'smooth' });
-
-            // Start typewriter effect on page 2
             startPage2Typewriter();
 
         } else {
-            // What happens if no name is entered 
             alert('You must have a name, right?');
         }
     });
 
-    // Enter key event
     nameBox.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             enterBtn.click();
@@ -114,32 +110,27 @@ function startPage2Typewriter() {
     const paragraphs = document.querySelectorAll('#page2 .content p');
     const nextButton = document.getElementById('nextBtn');
     
-    // Store original text
     const originalTexts = [];
     paragraphs.forEach(p => {
         originalTexts.push(p.textContent);
         p.textContent = '';
     });
 
-    // Hide button initially
     nextButton.style.display = 'none';
 
     let currentParagraph = 0;
     let currentChar = 0;
     let cursorVisible = true;
-    let lastCursorBlink = Date.now();
 
     function typeWriter() {
         if (currentParagraph < paragraphs.length) {
             const text = originalTexts[currentParagraph];
             
             if (currentChar < text.length) {
-                // Typing
                 paragraphs[currentParagraph].textContent = text.substring(0, currentChar + 1) + '▍';
                 currentChar++;
                 setTimeout(typeWriter, 75);
             } else {
-                // Finished this paragraph
                 paragraphs[currentParagraph].textContent = text;
                 currentParagraph++;
                 currentChar = 0;
@@ -147,7 +138,6 @@ function startPage2Typewriter() {
                 if (currentParagraph < paragraphs.length) {
                     setTimeout(typeWriter, 200);
                 } else {
-                    // All done, show button with blinking cursor
                     startCursorBlink();
                 }
             }
@@ -158,7 +148,6 @@ function startPage2Typewriter() {
         const lastP = paragraphs[paragraphs.length - 1];
         const finalText = originalTexts[originalTexts.length - 1];
         
-        // Fade out plus signs when typing finishes
         const plusSigns = document.querySelectorAll('.plus');
         plusSigns.forEach(p => p.classList.add('fade-out'));
         
@@ -179,18 +168,16 @@ function startPage2Typewriter() {
 
 var p5Initialized = false;
 
-// Next key event
 const nextBtn = document.getElementById('nextBtn');
 const page3 = document.getElementById('page3');
 
 nextBtn.addEventListener('click', function() {
+    currentPage = 3;
     page3.scrollIntoView({ behavior: 'smooth' });
 
-    // Fade out plus signs in place
     const plusSigns = document.querySelectorAll('.plus');
     plusSigns.forEach(p => p.classList.add('fade-out'));
 
-    //makes sure this only starts when user gets to page 3 
     if (!p5Initialized) {
         initializeCamera();
         p5Initialized = true;
@@ -207,16 +194,14 @@ function initializeCamera() {
         var currentBox = 1;
 
         p.setup = function() {
-            //   createCanvas (windowWidth, windowHeight);
             let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
             canvas.parent('p5-container');
-            p.background(0); // black black black
+            p.background(0);
 
             video = p.createCapture(p.VIDEO);
             video.size(320, 240);
             video.hide();
 
-            //initializes the api face stuff 
             const faceOptions = {
                 withLandmarks: true,
                 withExpressions: false,
@@ -275,9 +260,7 @@ function initializeCamera() {
             }
         }
 
-        // Function to upload p5.Graphics to Cloudinary
         function uploadToCloudinary(graphics) {
-            // Convert p5.Graphics to blob
             graphics.canvas.toBlob(async (blob) => {
                 const formData = new FormData();
                 formData.append('photo', blob, 'face-front.jpg');
@@ -314,7 +297,6 @@ function initializeCamera() {
 
             snapshots.push(snapshot);
             
-            // Upload FIRST photo to Cloudinary
             if (currentBox === 1) {
                 uploadToCloudinary(snapshot);
             }
@@ -330,6 +312,7 @@ function initializeCamera() {
                     const page4 = document.getElementById('page4');
                     if (page4) {
                         button.style('display', 'none');
+                        currentPage = 4;
                         page4.scrollIntoView({ behavior: 'smooth' });
 
                         if (!pg4Initialized) {
@@ -341,7 +324,6 @@ function initializeCamera() {
             }
         }
 
-        // so the tint cant be put in the draw fuction, but everytime each image is drawn in the code is where I need to put the tint to change the camera color 
         p.draw = function() {
             p.background(0);
 
@@ -375,7 +357,6 @@ function initializeCamera() {
                     p.image(snapshots[i], boxX, y, windowW, windowH);
                 }
 
-                // Adds the word in box (FRONT)
                 p.fill(255);
                 p.noStroke();
                 p.textSize(17);
@@ -428,8 +409,6 @@ var pg4Initialized = false;
 function initializeMorphVideo() {
     new p5(function(p) {
         var video;
-
-        // array for questions for viewers to have a mental breakdown
         var questions = [
             "Do you believe that digital media has an impact on the way you rationalize and perceive the real world around you?",
             "Do you believe that your curated self-image on social media apps accurately represents your physical self offline?",
@@ -440,13 +419,11 @@ function initializeMorphVideo() {
 
         var currentQuestion = 0;
         var yesButton, noButton, questionText;
-        //typewriter vibe wooooooo
         var typewriterIndex = 0;
         var isTyping = false;
-        var typewriterSpeed = 50;
         var cursorBlink = true;
         var lastBlinkTime = 0;
-        var userAnswers = []; // ADDED THIS LINE
+        var userAnswers = [];
 
         p.setup = function() {
             let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
@@ -457,17 +434,15 @@ function initializeMorphVideo() {
             video.size(320, 240);
             video.hide();
 
-            //makes the questions appear above the video portion 
             questionText = p.createDiv('');
             questionText.parent('page4');
-            questionText.style('color', 'red'); //remember to change color if it looks shitty 
+            questionText.style('color', 'red');
             questionText.style('font-size', '24px');
             questionText.style('text-align', 'center');
             questionText.style('position', 'absolute');
             questionText.style('width', '100%');
             updateQuestionPosition();
 
-            //YAAAAAS Button
             yesButton = p.createButton('YES');
             yesButton.parent('page4');
             yesButton.style('background-color', 'transparent');
@@ -479,9 +454,8 @@ function initializeMorphVideo() {
             yesButton.style('font-family', 'Arial');
             yesButton.style('position', 'absolute');
             yesButton.style('transition', 'all 0.3s');
-            yesButton.mousePressed(() => answerQuestion("YES")); // CHANGED THIS LINE
+            yesButton.mousePressed(() => answerQuestion("YES"));
             
-            // Hover effects for YES button
             yesButton.mouseOver(() => {
                 yesButton.style('background-color', 'red');
                 yesButton.style('color', 'black');
@@ -491,7 +465,6 @@ function initializeMorphVideo() {
                 yesButton.style('color', 'red');
             });
 
-            //NAAAAAUUUUR Button
             noButton = p.createButton('NO');
             noButton.parent('page4');
             noButton.style('background-color', 'transparent');
@@ -503,9 +476,8 @@ function initializeMorphVideo() {
             noButton.style('font-family', 'Arial');
             noButton.style('position', 'absolute');
             noButton.style('transition', 'all 0.3s');
-            noButton.mousePressed(() => answerQuestion("NO")); // CHANGED THIS LINE
+            noButton.mousePressed(() => answerQuestion("NO"));
             
-            // Hover effects for NO button
             noButton.mouseOver(() => {
                 noButton.style('background-color', 'red');
                 noButton.style('color', 'black');
@@ -519,7 +491,6 @@ function initializeMorphVideo() {
             startTyping();
         };
 
-        //Position of buttons 
         function updateQuestionPosition() {
             let windowH = 400;
             let y = (p.height - windowH) / 2;
@@ -529,221 +500,231 @@ function initializeMorphVideo() {
         function updateButtonPositions() {
             let windowW = 450;
             let windowH = 400;
-            let x = (p.width - windowW) / 2;
-            let y = (p.height - windowH) / 2;
-
-            yesButton.position(x - 240, y + windowH / 2 - 25);
-            noButton.position(x + windowW + 150, y + windowH / 2 - 25);
-        }
-
-        function startTyping() {
-            typewriterIndex = 0;
-            isTyping = true;
-            //buttons are hiding when typing :) 
-            if(yesButton) yesButton.style('display', 'none');
-            if(noButton) noButton.style('display', 'none');
-        }
-
-        function updateTypewriter() {
-            if (isTyping) {
-                if (typewriterIndex <= questions[currentQuestion].length) {
-                    let displayText = questions[currentQuestion].substring(0, typewriterIndex);
-
-                    ///blink blink blink
-                    displayText += '▍';
-                    
-                    questionText.html(displayText);
-                    typewriterIndex++;
-                } else {
-                    isTyping = false;
-                    if (yesButton) yesButton.style('display', 'block');
-                    if (noButton) noButton.style('display', 'block');
-                }
-            }
-            
-            if (!isTyping) {
-                let displayText = questions[currentQuestion];
-                if (cursorBlink) {
-                    displayText += '▍';
-                } else {
-                    displayText += '<span style="opacity:0;">▍</span>';
-                }
-                questionText.html(displayText);
-            }
-            
-            if (p.millis() - lastBlinkTime > 500) {
-                cursorBlink = !cursorBlink;
-                lastBlinkTime = p.millis();
-            }
-        }
-
-        //more Q&A ish
-        function answerQuestion(buttonAnswer) {
-            if (isTyping) return;
-            
-            // Store the answer
-            userAnswers.push({
-                question: questions[currentQuestion],
-                answer: buttonAnswer
-            });
-            
-            currentQuestion++;
-
-            if (currentQuestion < questions.length) {
-                startTyping();
-            } else {
-                // All questions answered - send to backend
-                const userName = document.getElementById('nameBox').value.trim();
-                
-                let obj = { 
-                    "userName": userName,
-                    "answers": userAnswers 
-                };
-                let jsonData = JSON.stringify(obj);
-
-                fetch('/save-answers', {
-                    method: 'POST',
-                    headers: {
-                        "Content-type": "application/json"
-                    },
-                    body: jsonData
-                })
-                .then(response => response.json())
-                .then(data => { console.log('Answers saved:', data) });
-                
-                questionText.remove();
-                yesButton.remove();
-                noButton.remove();
-
-                const page5 = document.getElementById('page5');
-                if (page5) {
-                    page5.scrollIntoView({ behavior: 'smooth' });
-                }
-            }
-        }
-
-        p.draw = function() {
-            p.background(0);
-
-            //more typewriter/ speed of typer
-            if (p.frameCount % 3 === 0) { 
-                updateTypewriter();
-            }
-
-            let windowW = 450;
-            let windowH = 400;
-
-            let x = (p.width - windowW) / 2;
-            let y = (p.height - windowH) / 2;
-
-            p.stroke(255);
-            p.strokeWeight(7);
-            p.noFill();
-            p.rect(x, y, windowW, windowH);
-
-            p.image(video, x, y, windowW, windowH);
-        };
-
-        p.windowResized = function() {
-            p.resizeCanvas(p.windowWidth, p.windowHeight);
-            updateQuestionPosition();
-            updateButtonPositions();
-        };
-    });
-}
-
-// Load gallery photos for Page 6
-async function loadGallery() {
-    try {
-        const response = await fetch('/gallery-photos');
-        const photos = await response.json();
-        
-        const gallery = document.getElementById('gallery');
-        gallery.innerHTML = photos.map(photo => `
-            <div class="photo-card">
-                <img src="${photo.url}" alt="${photo.userName}">
-                <p>${photo.userName}</p>
-                <small>${new Date(photo.uploadDate).toLocaleString()}</small>
-            </div>
-        `).join('');
-    } catch (error) {
-        console.error('Failed to load gallery:', error);
+let x = (p.width - windowW) / 2;
+let y = (p.height - windowH) / 2;
+yesButton.position(x - 240, y + windowH / 2 - 25);
+        noButton.position(x + windowW + 150, y + windowH / 2 - 25);
     }
+
+    function startTyping() {
+        typewriterIndex = 0;
+        isTyping = true;
+        if(yesButton) yesButton.style('display', 'none');
+        if(noButton) noButton.style('display', 'none');
+    }
+
+    function updateTypewriter() {
+        if (isTyping) {
+            if (typewriterIndex <= questions[currentQuestion].length) {
+                let displayText = questions[currentQuestion].substring(0, typewriterIndex);
+                displayText += '▍';
+                questionText.html(displayText);
+                typewriterIndex++;
+            } else {
+                isTyping = false;
+                if (yesButton) yesButton.style('display', 'block');
+                if (noButton) noButton.style('display', 'block');
+            }
+        }
+        
+        if (!isTyping) {
+            let displayText = questions[currentQuestion];
+            if (cursorBlink) {
+                displayText += '▍';
+            } else {
+                displayText += '<span style="opacity:0;">▍</span>';
+            }
+            questionText.html(displayText);
+        }
+        
+        if (p.millis() - lastBlinkTime > 500) {
+            cursorBlink = !cursorBlink;
+            lastBlinkTime = p.millis();
+        }
+    }
+
+    function answerQuestion(buttonAnswer) {
+        if (isTyping) return;
+        
+        userAnswers.push({
+            question: questions[currentQuestion],
+            answer: buttonAnswer
+        });
+        
+        currentQuestion++;
+
+        if (currentQuestion < questions.length) {
+            startTyping();
+        } else {
+            const userName = document.getElementById('nameBox').value.trim();
+            
+            let obj = { 
+                "userName": userName,
+                "answers": userAnswers 
+            };
+            let jsonData = JSON.stringify(obj);
+
+            fetch('/save-answers', {
+                method: 'POST',
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: jsonData
+            })
+            .then(response => response.json())
+            .then(data => { console.log('Answers saved:', data) });
+            
+            questionText.remove();
+            yesButton.remove();
+            noButton.remove();
+
+            currentPage = 5;
+            const page5 = document.getElementById('page5');
+           if (page5) {
+    page5.scrollIntoView({ behavior: 'smooth' });
+
+    // Start Page 5 typewriter effect
+    setTimeout(() => {
+        startPage5Typewriter();
+    }, 600); // slight delay so the page settles first
 }
 
-// Navigate from page 5 to gallery
+        }
+    }
+
+    // Page 5 Typewriter Effect
+var page5TypewriterActive = false;
+
+function startPage5Typewriter() {
+    if (page5TypewriterActive) return;
+    page5TypewriterActive = true;
+
+    const paragraphs = document.querySelectorAll('#page5Content p');
+    const nextButton = document.getElementById('nextBtn');
+    const originalTexts = [];
+
+    paragraphs.forEach(p => {
+        originalTexts.push(p.textContent);
+        p.textContent = '';
+    });
+
+    nextButton.style.display = 'none';
+
+    let currentParagraph = 0;
+    let currentChar = 0;
+    let cursorVisible = true;
+
+    function typeWriter5() {
+        if (currentParagraph < paragraphs.length) {
+            const text = originalTexts[currentParagraph];
+
+            if (currentChar < text.length) {
+                paragraphs[currentParagraph].textContent =
+                    text.substring(0, currentChar + 1) + '▍';
+                currentChar++;
+                setTimeout(typeWriter5, 75);
+            } else {
+                paragraphs[currentParagraph].textContent = text;
+                currentParagraph++;
+                currentChar = 0;
+
+                if (currentParagraph < paragraphs.length) {
+                    setTimeout(typeWriter5, 200);
+                } else {
+                    startCursorBlink5();
+                }
+            }
+        }
+    }
+
+    function startCursorBlink5() {
+       const lastP = paragraphs[paragraphs.length - 1];
+    const finalText = originalTexts[originalTexts.length - 1];
+
+    // Start cursor blink animation
+    setInterval(() => {
+        if (cursorVisible) {
+            lastP.textContent = finalText + "▍";
+        } else {
+            lastP.innerHTML = finalText + "<span style='opacity:0;'>▍</span>";
+        }
+        cursorVisible = !cursorVisible;
+    }, 500);
+    
+    nextButton.style.display = 'block';
+
+    }
+
+    typeWriter5();
+}
+
+
+    p.draw = function() {
+        p.background(0);
+
+        if (p.frameCount % 3 === 0) { 
+            updateTypewriter();
+        }
+
+        let windowW = 450;
+        let windowH = 400;
+
+        let x = (p.width - windowW) / 2;
+        let y = (p.height - windowH) / 2;
+
+        p.stroke(255);
+        p.strokeWeight(7);
+        p.noFill();
+        p.rect(x, y, windowW, windowH);
+
+        p.image(video, x, y, windowW, windowH);
+    };
+
+    p.windowResized = function() {
+        p.resizeCanvas(p.windowWidth, p.windowHeight);
+        updateQuestionPosition();
+        updateButtonPositions();
+    };
+});
+}
+async function loadGallery() {
+try {
+const response = await fetch('/gallery-photos');
+const photos = await response.json();
+const gallery = document.getElementById('gallery');
+    gallery.innerHTML = photos.map(photo => `
+        <div class="photo-card">
+            <img src="${photo.url}" alt="${photo.userName}">
+            <p>${photo.userName}</p>
+            <small>${new Date(photo.uploadDate).toLocaleString()}</small>
+        </div>
+    `).join('');
+} catch (error) {
+    console.error('Failed to load gallery:', error);
+}
+}
 const page5NextBtn = document.getElementById('page5NextBtn');
 const restartBtn = document.getElementById('restartBtn');
-const viewAnswersBtn = document.getElementById('viewAnswersBtn');
-const restartBtn2 = document.getElementById('restartBtn2');
-
 if (page5NextBtn) {
-    page5NextBtn.addEventListener('click', function() {
-        const page6 = document.getElementById('page6');
-        if (page6) {
-            page6.scrollIntoView({ behavior: 'smooth' });
-            loadGallery();
-            
-            // Show buttons when reaching page 6
-            if (restartBtn) {
-                restartBtn.style.display = 'block';
-            }
-            if (viewAnswersBtn) {
-                viewAnswersBtn.style.display = 'block';
-            }
-        }
-    });
-}
-
-// Restart button functionality (Page 6)
+page5NextBtn.addEventListener('click', function() {
+currentPage = 6;
+const page6 = document.getElementById('page6');
+if (page6) {
+page6.scrollIntoView({ behavior: 'smooth' });
+loadGallery();
 if (restartBtn) {
-    restartBtn.addEventListener('click', function() {
-        location.reload();
-    });
-}
-
-// View answers button functionality
-if (viewAnswersBtn) {
-    viewAnswersBtn.addEventListener('click', function() {
-        const page7 = document.getElementById('page7');
-        if (page7) {
-            page7.scrollIntoView({ behavior: 'smooth' });
-            loadAnswers();
+            restartBtn.style.display = 'block';
         }
-    });
-}
-
-// Restart button functionality (Page 7)
-if (restartBtn2) {
-    restartBtn2.addEventListener('click', function() {
-        location.reload();
-    });
-}
-
-// Load answers from users
-async function loadAnswers() {
-    try {
-        const response = await fetch('/user-answers');
-        const answers = await response.json();
-        
-        const answersGrid = document.getElementById('answersGrid');
-        
-        if (answers.length === 0) {
-            answersGrid.innerHTML = '<p style="color: white; text-align: center;">No responses yet. Be the first!</p>';
-            return;
-        }
-        
-        answersGrid.innerHTML = answers.map(user => `
-            <div class="answer-card">
-                <h3>${user.userName}</h3>
-                ${user.answers.map((answer, index) => `
-                    <div class="question">Q${index + 1}: ${answer.question}</div>
-                    <div class="answer">${answer.answer}</div>
-                `).join('')}
-            </div>
-        `).join('');
-    } catch (error) {
-        console.error('Failed to load answers:', error);
-        document.getElementById('answersGrid').innerHTML = '<p style="color: red; text-align: center;">Failed to load responses.</p>';
     }
+});
+}
+// FIXED - Restart button now properly resets everything
+if (restartBtn) {
+restartBtn.addEventListener('click', function() {
+currentPage = 1;
+window.scrollTo(0, 0);
+setTimeout(() => {
+location.reload(true);
+}, 100);
+});
 }

@@ -390,10 +390,7 @@ input:focus {
 
 /* Restart button on Page 6 */
 #restartBtn {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
     background-color: transparent;
     border: 2px solid red;
     color: red;
@@ -403,7 +400,8 @@ input:focus {
     transition: all 0.3s;
     font-family: Arial;
     z-index: 1000;
-    display: none;
+    display: block;
+    margin: 20px auto 40px auto;
     animation: blink 1.5s infinite;
 }
 

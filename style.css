@@ -1,12 +1,12 @@
 body {
-     background-color: black;
+    background-color: black;
     margin: 0;
     height: 100vh;
     font-family: Arial;
     overflow-x: hidden;
     scroll-behavior: smooth;
 }
-/* links back to html sheet - stop getting confused  */
+
 .page {
     height: 100vh;
     display: flex;
@@ -15,14 +15,12 @@ body {
     position: relative;
 }
 
-/* name box  */
 .center {
     text-align: center;
     z-index: 10;
     position: relative;
 }
 
-/* the p is a paragraph tag do not DELETE THIS P */
 p {
     color: white;
     font-size: 20px;
@@ -43,8 +41,6 @@ input:focus {
     outline: none;
 }
 
-/* enter botton stuff */
-/* Enter button styling */
 #enterBtn {
     background-color: transparent;
     border: 2px solid red;
@@ -60,7 +56,6 @@ input:focus {
     color: black;
 }
 
-/* THE PLUS SIGNS STUFF (styling) */
 .plus {
     position: fixed;
     font-size: 60px;
@@ -76,38 +71,30 @@ input:focus {
     color: #4da6ff;
 }
 
-/* This is for the signs to stay in the corners - all the ease in and out need to be the same number of seconds or else the signs will get wonky and delayed */
-
-/* RED TOP LEFT  */
 .top-left {
     top: 30px;
     left: 30px;
     animation: bounceFromTopLeft 12s ease-in-out infinite;
-
 }
-/* BLUE TOP RIGHT  */
+
 .top-right {
     top: 30px;
     right: 30px;
     animation: bounceFromTopRight 12s ease-in-out infinite;
 }
 
-/* BLUE BOTTOM LEFT */
 .bottom-left {
     bottom: 30px;
     left: 30px;
     animation: bounceFromBottomLeft 12s ease-in-out infinite;
 }
-/* RED BOTTOM RIGHT */
+
 .bottom-right {
     bottom: 30px;
     right: 30px;
     animation: bounceFromBottomRight 12s ease-in-out infinite;
 }
 
-/* Movement for the plus signs, they move closer to the center then return to og corner */
-
-/* RED TOP LEFT  */
 @keyframes bounceFromTopLeft {
     0%, 100% {
         transform: translate(0, 0);
@@ -115,10 +102,8 @@ input:focus {
     50% {
         transform: translate(calc(50vw - 350px), calc(50vh - 170px));
     }
-    /* had to change the 250px number to make sure the plus comes into the middle more  */
 }
 
-/* BLUE TOP RIGHT  */
 @keyframes bounceFromTopRight {
     0%, 100% {
         transform: translate(0, 0);
@@ -146,7 +131,6 @@ input:focus {
     }
 }
 
-/* page 2 woooooo */
 .content {
     color: white;
     font-size: 24px;
@@ -154,12 +138,10 @@ input:focus {
     padding: 40px;
 }
 
-/* Page 2: pluses fade out */
 .plus.fade-out {
     opacity: 0;
 }
 
- /* the button on Page 2 to progress */
 #nextBtn {
     background-color: transparent;
     border: 2px solid red;
@@ -174,10 +156,8 @@ input:focus {
 #nextBtn:hover {
     background-color: red;
     color: black;
-
 }
 
-/* Page 3 styling - clean black with 3 photo boxes */
 #page3 {
     background-color: black;
     overflow: hidden;
@@ -197,7 +177,6 @@ input:focus {
     left: 0;
 }
 
-/* Hide the default p5 button */
 #p5-container button {
     position: fixed !important;
     bottom: 40px !important;
@@ -218,7 +197,6 @@ input:focus {
     color: black !important;
 }
 
-/* Camera styling */
 .camera-container {
     text-align: center;
     padding: 20px;
@@ -244,7 +222,8 @@ input:focus {
     margin: 10px;
 }
 
-/* Page 5 - COPIED FROM PAGE 2 STYLING */
+/* Page 4 - Glitch is now handled by p5.js pixel manipulation */
+
 #page5NextBtn {
     background-color: transparent;
     border: 2px solid red;
@@ -254,20 +233,18 @@ input:focus {
     cursor: pointer;
     transition: all 0.3s;
     margin-top: 20px;
+    display: none;
 }
 
 #page5NextBtn:hover {
     background-color: red;
     color: black;
 }
+
 #page5Content p {
     opacity: 0;
 }
 
-#page5NextBtn {
-    display: none;
-}
-/* Gallery styling */
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -278,12 +255,12 @@ input:focus {
 }
 
 .photo-card {
-    border:2px solid white; 
+    border: 2px solid white; 
     border-radius: 0;
     padding: 15px;
     text-align: center;
     background: black;
-    box-shadow: none
+    box-shadow: none;
 }
 
 .photo-card img {
@@ -306,7 +283,6 @@ input:focus {
     margin-top: 5px;
 }
 
-/* Page 1 FACSIMILE typewriter styles */
 .facsimile-container {
     display: flex;
     justify-content: center;
@@ -359,7 +335,6 @@ input:focus {
     font-family: Arial, monospace;
 }
 
-/* Page 6 specific styling */
 #page6 {
     display: block;
     padding-top: 120px;
@@ -375,7 +350,6 @@ input:focus {
     padding: 20px;
 }
 
-/* Page 6 Gallery Header */
 .gallery-header {
     position: absolute;
     top: 40px;
@@ -388,9 +362,11 @@ input:focus {
     z-index: 1000;
 }
 
-/* Restart button on Page 6 */
 #restartBtn {
-    position: relative;
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
     background-color: transparent;
     border: 2px solid red;
     color: red;
@@ -401,7 +377,6 @@ input:focus {
     font-family: Arial;
     z-index: 1000;
     display: block;
-    margin: 20px auto 40px auto;
     animation: blink 1.5s infinite;
 }
 
@@ -411,7 +386,6 @@ input:focus {
     animation: none;
 }
 
-/* Blinking animation for restart button */
 @keyframes blink {
     0%, 100% {
         opacity: 1;

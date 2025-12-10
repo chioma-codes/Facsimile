@@ -20,7 +20,7 @@ window.addEventListener("scroll", () => {
 
 // Page 1 FACSIMILE typewriter effect
 window.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded'); // Debug
+    console.log('DOM loaded');
     const facsimileTyper = document.getElementById('facsimileTyper');
     const facsimileContainer = document.getElementById('facsimileText');
     const nameSection = document.getElementById('nameSection');
@@ -28,7 +28,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const nameBox = document.getElementById('nameBox');
     const page2 = document.getElementById('page2');
     
-    console.log('facsimileTyper:', facsimileTyper); // Debug
+    console.log('facsimileTyper:', facsimileTyper);
     
     if (!facsimileTyper) {
         console.error('facsimileTyper element not found!');
@@ -43,7 +43,7 @@ window.addEventListener('DOMContentLoaded', function() {
         if (charIndex < text.length) {
             facsimileTyper.textContent = text.substring(0, charIndex + 1) + '▍';
             charIndex++;
-            setTimeout(typeFacsimile, 220);
+            setTimeout(typeFacsimile, 230);
         } else {
             startFacsimileCursorBlink();
             
@@ -137,7 +137,7 @@ function startPage2Typewriter() {
             if (currentChar < text.length) {
                 paragraphs[currentParagraph].textContent = text.substring(0, currentChar + 1) + '▍';
                 currentChar++;
-                setTimeout(typeWriter, 55);
+                setTimeout(typeWriter, 50);
             } else {
                 paragraphs[currentParagraph].textContent = text;
                 currentParagraph++;
@@ -417,6 +417,7 @@ var pg4Initialized = false;
 function initializeMorphVideo() {
     new p5(function(p) {
         var video;
+        var videoCanvas;
         var questions = [
             "Do you believe that digital media has an impact on the way you rationalize and perceive the real world around you?",
             "Do you believe that your curated self-image on social media apps accurately represents your physical self offline?",
@@ -432,6 +433,9 @@ function initializeMorphVideo() {
         var cursorBlink = true;
         var lastBlinkTime = 0;
         var userAnswers = [];
+        var shouldGlitch = false;
+        var showBlueTint = false;
+        var tintTimer = 0;
 
         p.setup = function() {
             let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
@@ -441,6 +445,8 @@ function initializeMorphVideo() {
             video = p.createCapture(p.VIDEO);
             video.size(320, 240);
             video.hide();
+            
+            videoCanvas = p.createGraphics(450, 400);
 
             questionText = p.createDiv('');
             questionText.parent('page4');
@@ -500,6 +506,7 @@ function initializeMorphVideo() {
         };
 
         function updateQuestionPosition() {
+            if (!questionText) return;
             let windowH = 400;
             let y = (p.height - windowH) / 2;
             questionText.style('top', (y - 80) + 'px');
@@ -560,6 +567,13 @@ function initializeMorphVideo() {
             });
             
             currentQuestion++;
+            
+            // Enable glitch after 2nd question
+            if (currentQuestion === 2) {
+                shouldGlitch = true;
+                showBlueTint = true;
+                tintTimer = p.millis(); // Start timer for blue tint
+            }
 
             if (currentQuestion < questions.length) {
                 startTyping();
@@ -591,7 +605,6 @@ function initializeMorphVideo() {
                 if (page5) {
                     page5.scrollIntoView({ behavior: 'smooth' });
 
-                    // Start Page 5 typewriter effect
                     setTimeout(() => {
                         startPage5Typewriter();
                     }, 600);
@@ -606,6 +619,11 @@ function initializeMorphVideo() {
                 updateTypewriter();
             }
 
+            // Turn off blue tint after 3 seconds
+            if (showBlueTint && p.millis() - tintTimer > 3000) {
+                showBlueTint = false;
+            }
+
             let windowW = 450;
             let windowH = 400;
 
@@ -617,7 +635,38 @@ function initializeMorphVideo() {
             p.noFill();
             p.rect(x, y, windowW, windowH);
 
-            p.image(video, x, y, windowW, windowH);
+            // Draw video with optional glitch effect
+            if (shouldGlitch && p.frameCount % 5 === 0) {
+                let tempGraphics = p.createGraphics(windowW, windowH);
+                tempGraphics.image(video, 0, 0, windowW, windowH);
+                
+                // Apply blue tint if active
+                if (showBlueTint) {
+                    tempGraphics.tint(42, 113, 219);
+                }
+                
+                // Simple horizontal slice displacement
+                let numSlices = 8;
+                let sliceHeight = windowH / numSlices;
+                
+                for (let i = 0; i < numSlices; i++) {
+                    if (p.random() > 0.6) {
+                        let offset = p.floor(p.random(-15, 15));
+                        let yPos = i * sliceHeight;
+                        let slice = tempGraphics.get(0, yPos, windowW, sliceHeight);
+                        tempGraphics.image(slice, offset, yPos);
+                    }
+                }
+                
+                p.image(tempGraphics, x, y);
+            } else {
+                // No glitch, just video
+                if (showBlueTint) {
+                    p.tint(42, 113, 219);
+                }
+                p.image(video, x, y, windowW, windowH);
+                p.noTint();
+            }
         };
 
         p.windowResized = function() {
@@ -642,7 +691,7 @@ function startPage5Typewriter() {
     paragraphs.forEach(p => {
         originalTexts.push(p.textContent);
         p.textContent = '';
-        p.style.opacity = '1'; // Make visible when typing starts
+        p.style.opacity = '1';
     });
 
     nextButton.style.display = 'none';
@@ -659,7 +708,7 @@ function startPage5Typewriter() {
                 paragraphs[currentParagraph].textContent =
                     text.substring(0, currentChar + 1) + '▍';
                 currentChar++;
-                setTimeout(typeWriter5, 55);
+                setTimeout(typeWriter5, 50);
             } else {
                 paragraphs[currentParagraph].textContent = text;
                 currentParagraph++;
@@ -678,7 +727,6 @@ function startPage5Typewriter() {
         const lastP = paragraphs[paragraphs.length - 1];
         const finalText = originalTexts[originalTexts.length - 1];
 
-        // Start cursor blink animation
         setInterval(() => {
             if (cursorVisible) {
                 lastP.textContent = finalText + "▍";
@@ -729,7 +777,6 @@ if (page5NextBtn) {
     });
 }
 
-// FIXED - Restart button now properly resets everything
 if (restartBtn) {
     restartBtn.addEventListener('click', function() {
         currentPage = 1;

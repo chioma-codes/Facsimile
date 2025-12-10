@@ -20,12 +20,20 @@ window.addEventListener("scroll", () => {
 
 // Page 1 FACSIMILE typewriter effect
 window.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded'); // Debug
     const facsimileTyper = document.getElementById('facsimileTyper');
     const facsimileContainer = document.getElementById('facsimileText');
     const nameSection = document.getElementById('nameSection');
     const enterBtn = document.getElementById('enterBtn');
     const nameBox = document.getElementById('nameBox');
     const page2 = document.getElementById('page2');
+    
+    console.log('facsimileTyper:', facsimileTyper); // Debug
+    
+    if (!facsimileTyper) {
+        console.error('facsimileTyper element not found!');
+        return;
+    }
     
     const text = "FACSIMILE..";
     let charIndex = 0;
@@ -35,7 +43,7 @@ window.addEventListener('DOMContentLoaded', function() {
         if (charIndex < text.length) {
             facsimileTyper.textContent = text.substring(0, charIndex + 1) + '▍';
             charIndex++;
-            setTimeout(typeFacsimile, 150);
+            setTimeout(typeFacsimile, 220);
         } else {
             startFacsimileCursorBlink();
             
@@ -129,7 +137,7 @@ function startPage2Typewriter() {
             if (currentChar < text.length) {
                 paragraphs[currentParagraph].textContent = text.substring(0, currentChar + 1) + '▍';
                 currentChar++;
-                setTimeout(typeWriter, 75);
+                setTimeout(typeWriter, 55);
             } else {
                 paragraphs[currentParagraph].textContent = text;
                 currentParagraph++;
@@ -500,99 +508,127 @@ function initializeMorphVideo() {
         function updateButtonPositions() {
             let windowW = 450;
             let windowH = 400;
-let x = (p.width - windowW) / 2;
-let y = (p.height - windowH) / 2;
-yesButton.position(x - 240, y + windowH / 2 - 25);
-        noButton.position(x + windowW + 150, y + windowH / 2 - 25);
-    }
+            let x = (p.width - windowW) / 2;
+            let y = (p.height - windowH) / 2;
+            yesButton.position(x - 240, y + windowH / 2 - 25);
+            noButton.position(x + windowW + 150, y + windowH / 2 - 25);
+        }
 
-    function startTyping() {
-        typewriterIndex = 0;
-        isTyping = true;
-        if(yesButton) yesButton.style('display', 'none');
-        if(noButton) noButton.style('display', 'none');
-    }
+        function startTyping() {
+            typewriterIndex = 0;
+            isTyping = true;
+            if(yesButton) yesButton.style('display', 'none');
+            if(noButton) noButton.style('display', 'none');
+        }
 
-    function updateTypewriter() {
-        if (isTyping) {
-            if (typewriterIndex <= questions[currentQuestion].length) {
-                let displayText = questions[currentQuestion].substring(0, typewriterIndex);
-                displayText += '▍';
+        function updateTypewriter() {
+            if (isTyping) {
+                if (typewriterIndex <= questions[currentQuestion].length) {
+                    let displayText = questions[currentQuestion].substring(0, typewriterIndex);
+                    displayText += '▍';
+                    questionText.html(displayText);
+                    typewriterIndex++;
+                } else {
+                    isTyping = false;
+                    if (yesButton) yesButton.style('display', 'block');
+                    if (noButton) noButton.style('display', 'block');
+                }
+            }
+            
+            if (!isTyping) {
+                let displayText = questions[currentQuestion];
+                if (cursorBlink) {
+                    displayText += '▍';
+                } else {
+                    displayText += '<span style="opacity:0;">▍</span>';
+                }
                 questionText.html(displayText);
-                typewriterIndex++;
-            } else {
-                isTyping = false;
-                if (yesButton) yesButton.style('display', 'block');
-                if (noButton) noButton.style('display', 'block');
+            }
+            
+            if (p.millis() - lastBlinkTime > 500) {
+                cursorBlink = !cursorBlink;
+                lastBlinkTime = p.millis();
             }
         }
-        
-        if (!isTyping) {
-            let displayText = questions[currentQuestion];
-            if (cursorBlink) {
-                displayText += '▍';
+
+        function answerQuestion(buttonAnswer) {
+            if (isTyping) return;
+            
+            userAnswers.push({
+                question: questions[currentQuestion],
+                answer: buttonAnswer
+            });
+            
+            currentQuestion++;
+
+            if (currentQuestion < questions.length) {
+                startTyping();
             } else {
-                displayText += '<span style="opacity:0;">▍</span>';
+                const userName = document.getElementById('nameBox').value.trim();
+                
+                let obj = { 
+                    "userName": userName,
+                    "answers": userAnswers 
+                };
+                let jsonData = JSON.stringify(obj);
+
+                fetch('/save-answers', {
+                    method: 'POST',
+                    headers: {
+                        "Content-type": "application/json"
+                    },
+                    body: jsonData
+                })
+                .then(response => response.json())
+                .then(data => { console.log('Answers saved:', data) });
+                
+                questionText.remove();
+                yesButton.remove();
+                noButton.remove();
+
+                currentPage = 5;
+                const page5 = document.getElementById('page5');
+                if (page5) {
+                    page5.scrollIntoView({ behavior: 'smooth' });
+
+                    // Start Page 5 typewriter effect
+                    setTimeout(() => {
+                        startPage5Typewriter();
+                    }, 600);
+                }
             }
-            questionText.html(displayText);
         }
-        
-        if (p.millis() - lastBlinkTime > 500) {
-            cursorBlink = !cursorBlink;
-            lastBlinkTime = p.millis();
-        }
-    }
 
-    function answerQuestion(buttonAnswer) {
-        if (isTyping) return;
-        
-        userAnswers.push({
-            question: questions[currentQuestion],
-            answer: buttonAnswer
-        });
-        
-        currentQuestion++;
+        p.draw = function() {
+            p.background(0);
 
-        if (currentQuestion < questions.length) {
-            startTyping();
-        } else {
-            const userName = document.getElementById('nameBox').value.trim();
-            
-            let obj = { 
-                "userName": userName,
-                "answers": userAnswers 
-            };
-            let jsonData = JSON.stringify(obj);
+            if (p.frameCount % 3 === 0) { 
+                updateTypewriter();
+            }
 
-            fetch('/save-answers', {
-                method: 'POST',
-                headers: {
-                    "Content-type": "application/json"
-                },
-                body: jsonData
-            })
-            .then(response => response.json())
-            .then(data => { console.log('Answers saved:', data) });
-            
-            questionText.remove();
-            yesButton.remove();
-            noButton.remove();
+            let windowW = 450;
+            let windowH = 400;
 
-            currentPage = 5;
-            const page5 = document.getElementById('page5');
-           if (page5) {
-    page5.scrollIntoView({ behavior: 'smooth' });
+            let x = (p.width - windowW) / 2;
+            let y = (p.height - windowH) / 2;
 
-    // Start Page 5 typewriter effect
-    setTimeout(() => {
-        startPage5Typewriter();
-    }, 600); // slight delay so the page settles first
+            p.stroke(255);
+            p.strokeWeight(7);
+            p.noFill();
+            p.rect(x, y, windowW, windowH);
+
+            p.image(video, x, y, windowW, windowH);
+        };
+
+        p.windowResized = function() {
+            p.resizeCanvas(p.windowWidth, p.windowHeight);
+            updateQuestionPosition();
+            updateButtonPositions();
+        };
+    });
 }
 
-        }
-    }
-
-    // Page 5 Typewriter Effect
+// Page 5 Typewriter Effect - IN GLOBAL SCOPE
 var page5TypewriterActive = false;
 
 function startPage5Typewriter() {
@@ -600,12 +636,13 @@ function startPage5Typewriter() {
     page5TypewriterActive = true;
 
     const paragraphs = document.querySelectorAll('#page5Content p');
-    const nextButton = document.getElementById('nextBtn');
+    const nextButton = document.getElementById('page5NextBtn');
     const originalTexts = [];
 
     paragraphs.forEach(p => {
         originalTexts.push(p.textContent);
         p.textContent = '';
+        p.style.opacity = '1'; // Make visible when typing starts
     });
 
     nextButton.style.display = 'none';
@@ -622,7 +659,7 @@ function startPage5Typewriter() {
                 paragraphs[currentParagraph].textContent =
                     text.substring(0, currentChar + 1) + '▍';
                 currentChar++;
-                setTimeout(typeWriter5, 75);
+                setTimeout(typeWriter5, 55);
             } else {
                 paragraphs[currentParagraph].textContent = text;
                 currentParagraph++;
@@ -638,93 +675,67 @@ function startPage5Typewriter() {
     }
 
     function startCursorBlink5() {
-       const lastP = paragraphs[paragraphs.length - 1];
-    const finalText = originalTexts[originalTexts.length - 1];
+        const lastP = paragraphs[paragraphs.length - 1];
+        const finalText = originalTexts[originalTexts.length - 1];
 
-    // Start cursor blink animation
-    setInterval(() => {
-        if (cursorVisible) {
-            lastP.textContent = finalText + "▍";
-        } else {
-            lastP.innerHTML = finalText + "<span style='opacity:0;'>▍</span>";
-        }
-        cursorVisible = !cursorVisible;
-    }, 500);
-    
-    nextButton.style.display = 'block';
-
+        // Start cursor blink animation
+        setInterval(() => {
+            if (cursorVisible) {
+                lastP.textContent = finalText + "▍";
+            } else {
+                lastP.innerHTML = finalText + "<span style='opacity:0;'>▍</span>";
+            }
+            cursorVisible = !cursorVisible;
+        }, 500);
+        
+        nextButton.style.display = 'block';
     }
 
     typeWriter5();
 }
 
-
-    p.draw = function() {
-        p.background(0);
-
-        if (p.frameCount % 3 === 0) { 
-            updateTypewriter();
-        }
-
-        let windowW = 450;
-        let windowH = 400;
-
-        let x = (p.width - windowW) / 2;
-        let y = (p.height - windowH) / 2;
-
-        p.stroke(255);
-        p.strokeWeight(7);
-        p.noFill();
-        p.rect(x, y, windowW, windowH);
-
-        p.image(video, x, y, windowW, windowH);
-    };
-
-    p.windowResized = function() {
-        p.resizeCanvas(p.windowWidth, p.windowHeight);
-        updateQuestionPosition();
-        updateButtonPositions();
-    };
-});
-}
+// Gallery and Page Navigation
 async function loadGallery() {
-try {
-const response = await fetch('/gallery-photos');
-const photos = await response.json();
-const gallery = document.getElementById('gallery');
-    gallery.innerHTML = photos.map(photo => `
-        <div class="photo-card">
-            <img src="${photo.url}" alt="${photo.userName}">
-            <p>${photo.userName}</p>
-            <small>${new Date(photo.uploadDate).toLocaleString()}</small>
-        </div>
-    `).join('');
-} catch (error) {
-    console.error('Failed to load gallery:', error);
+    try {
+        const response = await fetch('/gallery-photos');
+        const photos = await response.json();
+        const gallery = document.getElementById('gallery');
+        gallery.innerHTML = photos.map(photo => `
+            <div class="photo-card">
+                <img src="${photo.url}" alt="${photo.userName}">
+                <p>${photo.userName}</p>
+                <small>${new Date(photo.uploadDate).toLocaleString()}</small>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Failed to load gallery:', error);
+    }
 }
-}
+
 const page5NextBtn = document.getElementById('page5NextBtn');
 const restartBtn = document.getElementById('restartBtn');
+
 if (page5NextBtn) {
-page5NextBtn.addEventListener('click', function() {
-currentPage = 6;
-const page6 = document.getElementById('page6');
-if (page6) {
-page6.scrollIntoView({ behavior: 'smooth' });
-loadGallery();
-if (restartBtn) {
-            restartBtn.style.display = 'block';
+    page5NextBtn.addEventListener('click', function() {
+        currentPage = 6;
+        const page6 = document.getElementById('page6');
+        if (page6) {
+            page6.scrollIntoView({ behavior: 'smooth' });
+            loadGallery();
+            if (restartBtn) {
+                restartBtn.style.display = 'block';
+            }
         }
-    }
-});
+    });
 }
+
 // FIXED - Restart button now properly resets everything
 if (restartBtn) {
-restartBtn.addEventListener('click', function() {
-currentPage = 1;
-window.scrollTo(0, 0);
-setTimeout(() => {
-location.reload(true);
-}, 100);
-});
+    restartBtn.addEventListener('click', function() {
+        currentPage = 1;
+        window.scrollTo(0, 0);
+        setTimeout(() => {
+            location.reload(true);
+        }, 100);
+    });
 }

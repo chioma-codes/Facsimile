@@ -260,7 +260,13 @@ input:focus {
     background-color: red;
     color: black;
 }
+#page5Content p {
+    opacity: 0;
+}
 
+#page5NextBtn {
+    display: none;
+}
 /* Gallery styling */
 .gallery-grid {
     display: grid;

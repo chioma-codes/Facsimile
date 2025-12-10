@@ -1,17 +1,12 @@
 {
   "name": "facsimile",
   "version": "1.0.0",
-  "description": "Semester Final Project ",
+  "description": "Semester Final Project",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+      "dev": "node index.js"
   },
   "author": "Chioma",
-  "license": "ISC",
-  "dependencies": {
-    "cloudinary": "^2.8.0",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "multer": "^2.0.2"
-  }
+  "license": "ISC"
 }

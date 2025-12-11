@@ -137,7 +137,7 @@ function startPage2Typewriter() {
             if (currentChar < text.length) {
                 paragraphs[currentParagraph].textContent = text.substring(0, currentChar + 1) + '▍';
                 currentChar++;
-                setTimeout(typeWriter, 50);
+                setTimeout(typeWriter, 75);
             } else {
                 paragraphs[currentParagraph].textContent = text;
                 currentParagraph++;
@@ -708,7 +708,7 @@ function startPage5Typewriter() {
                 paragraphs[currentParagraph].textContent =
                     text.substring(0, currentChar + 1) + '▍';
                 currentChar++;
-                setTimeout(typeWriter5, 50);
+                setTimeout(typeWriter5, 75);
             } else {
                 paragraphs[currentParagraph].textContent = text;
                 currentParagraph++;

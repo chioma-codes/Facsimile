@@ -258,6 +258,7 @@ function initializeCamera() {
                 );
 
                 let points = detections[f].landmarks.positions;
+                graphics.stroke(255, 0, 0);
                 graphics.strokeWeight(2);
                 for (let i = 0; i < points.length; i++) {
                     graphics.point(
@@ -386,12 +387,13 @@ function initializeCamera() {
 
                     p.rect(
                         offsetX + _x * scaleX,
-                        offsetY + _y * scaleX,
+                        offsetY + _y * scaleY,
                         _width * scaleX,
                         _height * scaleY
                     );
 
                     let points = detections[f].landmarks.positions;
+                    p.stroke(255, 255, 0);
                     p.strokeWeight(1);
                     for (let i = 0; i < points.length; i++) {
                         p.point(
@@ -455,6 +457,7 @@ function initializeMorphVideo() {
             questionText.style('text-align', 'center');
             questionText.style('position', 'absolute');
             questionText.style('width', '100%');
+            questionText.style('font-family', 'Share Tech Mono, monospace');
             updateQuestionPosition();
 
             yesButton = p.createButton('YES');
@@ -465,7 +468,7 @@ function initializeMorphVideo() {
             yesButton.style('padding', '10px 40px');
             yesButton.style('font-size', '18px');
             yesButton.style('cursor', 'pointer');
-            yesButton.style('font-family', 'Arial');
+            yesButton.style('font-family', 'Share Tech Mono, monospace');
             yesButton.style('position', 'absolute');
             yesButton.style('transition', 'all 0.3s');
             yesButton.mousePressed(() => answerQuestion("YES"));
@@ -487,7 +490,7 @@ function initializeMorphVideo() {
             noButton.style('padding', '10px 40px');
             noButton.style('font-size', '18px');
             noButton.style('cursor', 'pointer');
-            noButton.style('font-family', 'Arial');
+            noButton.style('font-family', 'Share Tech Mono, monospace');
             noButton.style('position', 'absolute');
             noButton.style('transition', 'all 0.3s');
             noButton.mousePressed(() => answerQuestion("NO"));
@@ -568,11 +571,10 @@ function initializeMorphVideo() {
             
             currentQuestion++;
             
-            // Enable glitch after 2nd question
             if (currentQuestion === 2) {
                 shouldGlitch = true;
                 showBlueTint = true;
-                tintTimer = p.millis(); // Start timer for blue tint
+                tintTimer = p.millis();
             }
 
             if (currentQuestion < questions.length) {
@@ -596,19 +598,31 @@ function initializeMorphVideo() {
                 .then(response => response.json())
                 .then(data => { console.log('Answers saved:', data) });
                 
-                questionText.remove();
-                yesButton.remove();
-                noButton.remove();
+                const page4 = document.getElementById('page4');
+                page4.style.transition = 'opacity 1.5s ease-out';
+                page4.style.opacity = '0';
+                
+                setTimeout(() => {
+                    questionText.remove();
+                    yesButton.remove();
+                    noButton.remove();
 
-                currentPage = 5;
-                const page5 = document.getElementById('page5');
-                if (page5) {
-                    page5.scrollIntoView({ behavior: 'smooth' });
+                    currentPage = 5;
+                    const page5 = document.getElementById('page5');
+                    if (page5) {
+                        page5.style.opacity = '0';
+                        page5.scrollIntoView({ behavior: 'smooth' });
 
-                    setTimeout(() => {
-                        startPage5Typewriter();
-                    }, 600);
-                }
+                        setTimeout(() => {
+                            page5.style.transition = 'opacity 1.5s ease-in';
+                            page5.style.opacity = '1';
+                            
+                            setTimeout(() => {
+                                startPage5Typewriter();
+                            }, 600);
+                        }, 100);
+                    }
+                }, 1500);
             }
         }
 
@@ -619,7 +633,6 @@ function initializeMorphVideo() {
                 updateTypewriter();
             }
 
-            // Turn off blue tint after 3 seconds
             if (showBlueTint && p.millis() - tintTimer > 3000) {
                 showBlueTint = false;
             }
@@ -635,17 +648,14 @@ function initializeMorphVideo() {
             p.noFill();
             p.rect(x, y, windowW, windowH);
 
-            // Draw video with optional glitch effect
             if (shouldGlitch && p.frameCount % 5 === 0) {
                 let tempGraphics = p.createGraphics(windowW, windowH);
                 tempGraphics.image(video, 0, 0, windowW, windowH);
                 
-                // Apply blue tint if active
                 if (showBlueTint) {
                     tempGraphics.tint(42, 113, 219);
                 }
                 
-                // Simple horizontal slice displacement
                 let numSlices = 8;
                 let sliceHeight = windowH / numSlices;
                 
@@ -660,7 +670,6 @@ function initializeMorphVideo() {
                 
                 p.image(tempGraphics, x, y);
             } else {
-                // No glitch, just video
                 if (showBlueTint) {
                     p.tint(42, 113, 219);
                 }
@@ -677,7 +686,6 @@ function initializeMorphVideo() {
     });
 }
 
-// Page 5 Typewriter Effect - IN GLOBAL SCOPE
 var page5TypewriterActive = false;
 
 function startPage5Typewriter() {
@@ -742,7 +750,6 @@ function startPage5Typewriter() {
     typeWriter5();
 }
 
-// Gallery and Page Navigation
 async function loadGallery() {
     try {
         const response = await fetch('/gallery-photos');

@@ -200,6 +200,7 @@ function initializeCamera() {
         var faceapi;
         var detections = [];
         var currentBox = 1;
+        var photoLabels = ['face-front', 'face-left', 'face-right'];
 
         p.setup = function() {
             let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
@@ -258,7 +259,6 @@ function initializeCamera() {
                 );
 
                 let points = detections[f].landmarks.positions;
-                graphics.stroke(255, 0, 0);
                 graphics.strokeWeight(2);
                 for (let i = 0; i < points.length; i++) {
                     graphics.point(
@@ -269,10 +269,11 @@ function initializeCamera() {
             }
         }
 
-        function uploadToCloudinary(graphics) {
+        function uploadToCloudinary(graphics, photoType) {
             graphics.canvas.toBlob(async (blob) => {
                 const formData = new FormData();
-                formData.append('photo', blob, 'face-front.jpg');
+                formData.append('photo', blob, `${photoType}.jpg`);
+                formData.append('photoType', photoType);
                 
                 try {
                     const response = await fetch('/upload-photo', {
@@ -283,7 +284,7 @@ function initializeCamera() {
                     const result = await response.json();
                     
                     if (result.success) {
-                        console.log('Photo uploaded to gallery!', result.userName);
+                        console.log(`Photo ${photoType} uploaded to gallery!`, result.userName);
                     }
                 } catch (error) {
                     console.error('Upload failed:', error);
@@ -306,8 +307,9 @@ function initializeCamera() {
 
             snapshots.push(snapshot);
             
+            // Only upload the first photo (FACE FRONT)
             if (currentBox === 1) {
-                uploadToCloudinary(snapshot);
+                uploadToCloudinary(snapshot, photoLabels[0]);
             }
             
             currentBox++;
@@ -344,7 +346,7 @@ function initializeCamera() {
             let startX = (p.width - totalWidth) / 2;
             let y = (p.height - windowH) / 2;
 
-            let labels = ["FACE FRONT", "TURN LEFT", "TURN RIGHT"];
+            let labels = ["FACE FRONT", "FACE LEFT", "FACE RIGHT"];
 
             for (var i = 0; i < 3; i++) {
                 let boxX = startX + i * (windowW + spacing);
@@ -387,13 +389,12 @@ function initializeCamera() {
 
                     p.rect(
                         offsetX + _x * scaleX,
-                        offsetY + _y * scaleY,
+                        offsetY + _y * scaleX,
                         _width * scaleX,
                         _height * scaleY
                     );
 
                     let points = detections[f].landmarks.positions;
-                    p.stroke(255, 255, 0);
                     p.strokeWeight(1);
                     for (let i = 0; i < points.length; i++) {
                         p.point(
@@ -457,7 +458,6 @@ function initializeMorphVideo() {
             questionText.style('text-align', 'center');
             questionText.style('position', 'absolute');
             questionText.style('width', '100%');
-            questionText.style('font-family', 'Share Tech Mono, monospace');
             updateQuestionPosition();
 
             yesButton = p.createButton('YES');
@@ -468,7 +468,7 @@ function initializeMorphVideo() {
             yesButton.style('padding', '10px 40px');
             yesButton.style('font-size', '18px');
             yesButton.style('cursor', 'pointer');
-            yesButton.style('font-family', 'Share Tech Mono, monospace');
+            yesButton.style('font-family', 'Arial');
             yesButton.style('position', 'absolute');
             yesButton.style('transition', 'all 0.3s');
             yesButton.mousePressed(() => answerQuestion("YES"));
@@ -490,7 +490,7 @@ function initializeMorphVideo() {
             noButton.style('padding', '10px 40px');
             noButton.style('font-size', '18px');
             noButton.style('cursor', 'pointer');
-            noButton.style('font-family', 'Share Tech Mono, monospace');
+            noButton.style('font-family', 'Arial');
             noButton.style('position', 'absolute');
             noButton.style('transition', 'all 0.3s');
             noButton.mousePressed(() => answerQuestion("NO"));
@@ -571,6 +571,7 @@ function initializeMorphVideo() {
             
             currentQuestion++;
             
+            // Enable glitch after 2nd question
             if (currentQuestion === 2) {
                 shouldGlitch = true;
                 showBlueTint = true;
@@ -598,31 +599,19 @@ function initializeMorphVideo() {
                 .then(response => response.json())
                 .then(data => { console.log('Answers saved:', data) });
                 
-                const page4 = document.getElementById('page4');
-                page4.style.transition = 'opacity 1.5s ease-out';
-                page4.style.opacity = '0';
-                
-                setTimeout(() => {
-                    questionText.remove();
-                    yesButton.remove();
-                    noButton.remove();
+                questionText.remove();
+                yesButton.remove();
+                noButton.remove();
 
-                    currentPage = 5;
-                    const page5 = document.getElementById('page5');
-                    if (page5) {
-                        page5.style.opacity = '0';
-                        page5.scrollIntoView({ behavior: 'smooth' });
+                currentPage = 5;
+                const page5 = document.getElementById('page5');
+                if (page5) {
+                    page5.scrollIntoView({ behavior: 'smooth' });
 
-                        setTimeout(() => {
-                            page5.style.transition = 'opacity 1.5s ease-in';
-                            page5.style.opacity = '1';
-                            
-                            setTimeout(() => {
-                                startPage5Typewriter();
-                            }, 600);
-                        }, 100);
-                    }
-                }, 1500);
+                    setTimeout(() => {
+                        startPage5Typewriter();
+                    }, 600);
+                }
             }
         }
 
@@ -686,6 +675,7 @@ function initializeMorphVideo() {
     });
 }
 
+// Page 5 Typewriter Effect
 var page5TypewriterActive = false;
 
 function startPage5Typewriter() {
@@ -750,20 +740,31 @@ function startPage5Typewriter() {
     typeWriter5();
 }
 
+// Gallery and Page Navigation
 async function loadGallery() {
     try {
         const response = await fetch('/gallery-photos');
         const photos = await response.json();
         const gallery = document.getElementById('gallery');
+        
+        console.log('Gallery photos received:', photos);
+        console.log('Number of photos:', photos.length);
+        
+        if (!photos || photos.length === 0) {
+            gallery.innerHTML = '<p style="color: white;">No photos in gallery yet.</p>';
+            return;
+        }
+        
         gallery.innerHTML = photos.map(photo => `
             <div class="photo-card">
-                <img src="${photo.url}" alt="${photo.userName}">
+                <img src="${photo.url}" alt="${photo.userName}" loading="lazy">
                 <p>${photo.userName}</p>
                 <small>${new Date(photo.uploadDate).toLocaleString()}</small>
             </div>
         `).join('');
     } catch (error) {
         console.error('Failed to load gallery:', error);
+        document.getElementById('gallery').innerHTML = '<p style="color: red;">Error loading gallery</p>';
     }
 }
 

@@ -23,8 +23,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 let nameTracker = [];
-let galleryPhotos = [];
-let userAnswers = []; // NEW: Array to store user answers
+let userAnswers = [];
 
 app.use(express.static(__dirname));
 app.use(express.json());
@@ -43,7 +42,7 @@ app.post('/name', (req, res) => {
     res.json({ task: req.body });
 });
 
-// NEW: Route to save user answers
+// Route to save user answers
 app.post('/save-answers', (req, res) => {
     console.log('Answers received:', req.body);
     
@@ -60,12 +59,12 @@ app.post('/save-answers', (req, res) => {
     res.json({ success: true, userName: req.body.userName });
 });
 
-// NEW: Route to get all user answers
+// Route to get all user answers
 app.get('/user-answers', (req, res) => {
     res.json(userAnswers);
 });
 
-// New route for photo upload - Mix of Claude and the provided CLOUDINARY CODE
+// Photo upload route - stores metadata in Cloudinary context
 app.post('/upload-photo', upload.single('photo'), async (req, res) => {
     try {
         // Get the most recent user's name
@@ -77,20 +76,16 @@ app.post('/upload-photo', upload.single('photo'), async (req, res) => {
         const b64 = Buffer.from(req.file.buffer).toString('base64');
         const dataURI = `data:${req.file.mimetype};base64,${b64}`;
 
-        // Upload to Cloudinary
+        const timestamp = Date.now();
+
+        // Upload to Cloudinary with context metadata
         const uploadResult = await cloudinary.uploader.upload(dataURI, {
             folder: 'gallery',
-            public_id: `${userName}_${Date.now()}`,
+            public_id: `${userName}_${timestamp}`,
+            context: `userName=${userName}|uploadDate=${new Date().toISOString()}`
         });
 
-        // Store in gallery array
-        const photoData = {
-            url: uploadResult.secure_url,
-            userName: userName,
-            uploadDate: new Date().toISOString()
-        };
-        
-        galleryPhotos.push(photoData);
+        console.log('Photo uploaded:', uploadResult.secure_url);
 
         res.json({ 
             success: true, 
@@ -104,9 +99,55 @@ app.post('/upload-photo', upload.single('photo'), async (req, res) => {
     }
 });
 
-// Route to get all gallery photos
-app.get('/gallery-photos', (req, res) => {
-    res.json(galleryPhotos);
+// Route to get all gallery photos from Cloudinary
+app.get('/gallery-photos', async (req, res) => {
+    try {
+        // Fetch all images from the 'gallery' folder in Cloudinary
+        // Using direction: 'desc' to get newest uploads first
+        const result = await cloudinary.api.resources({
+            type: 'upload',
+            prefix: 'gallery/',
+            max_results: 500,
+            context: true,
+            direction: 'desc'
+        });
+
+        // Transform Cloudinary response into gallery format
+        const photos = result.resources.map(resource => {
+            // Extract userName from context or public_id
+            let userName = 'Anonymous';
+            let uploadDate = resource.created_at;
+
+            if (resource.context && resource.context.custom) {
+                userName = resource.context.custom.userName || userName;
+                uploadDate = resource.context.custom.uploadDate || uploadDate;
+            } else {
+                // Try to extract from public_id (format: gallery/userName_timestamp)
+                const publicIdParts = resource.public_id.split('/');
+                const filename = publicIdParts[publicIdParts.length - 1];
+                const namePart = filename.split('_')[0];
+                if (namePart) {
+                    userName = namePart;
+                }
+            }
+
+            return {
+                url: resource.secure_url,
+                userName: userName,
+                uploadDate: uploadDate
+            };
+        });
+
+        // Sort photos by uploadDate in descending order (most recent first)
+        photos.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+
+        console.log(`Fetched ${photos.length} photos from Cloudinary`);
+        res.json(photos);
+
+    } catch (error) {
+        console.error('Error fetching gallery photos:', error);
+        res.status(500).json({ error: 'Failed to fetch gallery photos' });
+    }
 });
 
 // --------------------
